@@ -5,7 +5,7 @@
 
 **Payment reconciliation and ledger-to-accounting infrastructure for Stellar.**
 
-> **Status: pre-alpha (`0.0.1`, not yet on npm).** Implemented and tested: the `Money`/`Asset`
+> **Status: `0.1.0`, early, and not yet on npm.** Implemented and tested: the `Money`/`Asset`
 > core, the record model (movements, expectations, allocations, exceptions), the transactional
 > `Store` contract with in-memory, SQLite (`nostro-store-sqlite`) and PostgreSQL
 > (`nostro-store-postgres`) stores that pass one shared conformance suite, and Horizon ingestion

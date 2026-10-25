@@ -2,46 +2,94 @@
 
 **Payment reconciliation and ledger-to-accounting infrastructure for Stellar.**
 
-> **Pre-alpha (`0.0.1`).** The `Money` / `Asset` core is implemented and tested. Ingestion, matching
-> and the journal are in progress. This release exists to reserve the name and publish the
-> foundation — it is not yet usable for reconciliation.
+Did this expected payment arrive, in full, from whom, and how do I record it? Most Stellar products
+answer that with a Horizon `payments` stream and an amount comparison. That never sees SAC transfers
+or claimable balances, ignores the asset issuer, drops events on reconnect, and re-applies them after
+a restart. nostro ingests every effect and fee, matches payments to what you are owed, posts a
+double-entry journal, and checks its own books against the chain.
 
-Every payments, payroll, escrow and invoicing product on Stellar has to answer: *did this expected
-payment actually arrive, in full, from whom, and how do I record it?* Almost everyone answers it with
-a Horizon `payments` stream and an amount comparison — which never sees SAC transfers or claimable
-balances, ignores the asset issuer, drops events on reconnect, and re-applies effects after a
-restart. nostro is the layer that gets this right once.
+> **0.1.0, early.** Everything below is implemented and tested, and has been run against real
+> testnet accounts, but the API may still change before 1.0. See the changelog for what is not
+> handled yet.
 
-## What works today
-
-```ts
-import { Money, asset, NATIVE, isSameCodeDifferentIssuer } from 'nostro'
-
-// Amounts are exact integer stroops — never floats.
-Money.parse('0.1', NATIVE).add(Money.parse('0.2', NATIVE)).toString() // '0.3000000'
-
-// Values beyond IEEE-754 integer range survive intact.
-Money.parse('1000000000000', NATIVE).raw // 10000000000000000000n
-
-// A value we cannot represent exactly is an error, not a silent rounding.
-Money.parse('0.00000001', NATIVE) // throws PrecisionError
-
-// Assets carry their issuer. A lookalike never settles the real thing.
-const real = asset('USDC', 'GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN')
-const fake = asset('USDC', 'GABCDEFGHIJKLMNOPQRSTUVWXYZ234567ABCDEFGHIJKLMNOPQRSTUVW')
-isSameCodeDifferentIssuer(real, fake) // true
-Money.parse('1', real).add(Money.parse('1', fake)) // throws AssetMismatchError
+```sh
+npm install nostro
 ```
 
-## Non-goals
+## Ingest an account
 
-**nostro never holds, requests, or signs with a secret key.** It observes and records; it cannot move
+```ts
+import { HorizonClient, HorizonEffectsSource, HorizonFeesSource, MemoryStore, sync } from 'nostro'
+
+const client = new HorizonClient({ url: 'https://horizon-testnet.stellar.org' })
+const store = new MemoryStore() // or nostro-store-sqlite / nostro-store-postgres
+for (const source of [
+  new HorizonEffectsSource({ client, network: 'testnet' }), // every credit, debit, trade, pool move
+  new HorizonFeesSource({ client, network: 'testnet' }), //    fees are not effects; read them too
+]) {
+  const report = await sync({ store, source, tenantId: 'acme', accounts: ['G...'] })
+}
+```
+
+`sync()` is bounded and resumable. The cursor advances in the same transaction as the movements it
+covers, so a crash can never skip or double-apply a batch.
+
+## Reconcile against what you are owed
+
+```ts
+import { Money, NATIVE, reconcile } from 'nostro'
+
+await store.transaction((tx) =>
+  tx.insertExpectation({ tenantId: 'acme', reference: 'INV-1042', account: 'G...', amount: Money.parse('25', NATIVE), muxedId: 1042n }),
+)
+const report = await reconcile({ store, tenantId: 'acme' })
+```
+
+Payments match by muxed id, memo id or text memo (normalised, so `inv #1042` finds `INV-1042`). An
+amount alone is only ever a suggestion. Overpayments, duplicates, lookalike assets and late payments
+go to an exceptions queue, with the evidence for each decision. Every decision is posted to a
+double-entry journal in the same transaction (`journalCsv()` exports it), and written to an event
+log that `deliverWebhooks()` posts to a URL, signed (`verifyWebhook()` checks the signature).
+
+## Check the books
+
+```ts
+import { doctor } from 'nostro'
+
+const report = await doctor({ store, tenantId: 'acme' }) // add `attest` to compare balances with the chain
+```
+
+- **I1:** every movement is allocated, partly allocated with an exception, raised as an exception,
+  or ignored with a reason. Nothing is silently dropped.
+- **I2:** each account's recorded movements add up to its on-chain balance in every asset.
+- **I3:** every journal entry balances per asset.
+
+## Money that cannot drift
+
+```ts
+Money.parse('0.1', NATIVE).add(Money.parse('0.2', NATIVE)).toString() // '0.3000000'
+Money.parse('0.00000001', NATIVE) // throws PrecisionError: never rounded
+```
+
+Amounts are bigint raw units, never floats. Assets are `CODE:ISSUER`, so a lookalike `USDC` from
+another issuer is a different asset and never settles a real invoice.
+
+## The rest of nostro
+
+- [`nostro-store-sqlite`](https://www.npmjs.com/package/nostro-store-sqlite) and
+  [`nostro-store-postgres`](https://www.npmjs.com/package/nostro-store-postgres): durable stores
+  that pass the same conformance suite as `MemoryStore`.
+- [`nostro-cli`](https://www.npmjs.com/package/nostro-cli): `nostro sync`, `reconcile`, `doctor`,
+  `export`, `serve` and more.
+- [`nostro-server`](https://www.npmjs.com/package/nostro-server): the HTTP API, with an OpenAPI
+  document.
+
+nostro has no runtime dependencies. It runs on Node 22 or later.
+
+**nostro never holds, requests or signs with a secret key.** It observes and records, and cannot move
 funds. That is permanent, not a v1 limitation.
 
-## Documentation
-
-Architecture, the reconciliation invariants, and the design records live in the repository:
-**https://github.com/nostro-labs/nostro**
+Documentation, design records and the changelog: **https://github.com/nostro-labs/nostro**
 
 ## License
 

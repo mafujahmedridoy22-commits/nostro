@@ -52,6 +52,13 @@ function routesOf(tree: string): string[] {
 }
 
 describe('the OpenAPI document', () => {
+  it("carries this package's version", async () => {
+    const { readFileSync } = await import('node:fs')
+    const pkg = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }
+    expect(buildOpenApi().info.version).toBe(pkg.version)
+    expect(pkg.version).toBe('0.1.0')
+  })
+
   it('is valid OpenAPI 3.1', async () => {
     await expect(SwaggerParser.validate(structuredClone(buildOpenApi()) as never)).resolves.toBeDefined()
   })

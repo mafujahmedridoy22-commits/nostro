@@ -21,16 +21,16 @@ importers:
   packages/cli:
     dependencies:
       nostro:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../core
       nostro-server:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../server
       nostro-store-postgres:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../store-postgres
       nostro-store-sqlite:
-        specifier: workspace:*
+        specifier: workspace:^
         version: link:../store-sqlite
     devDependencies:
       '@types/better-sqlite3':
@@ -73,7 +73,7 @@ importers:
   packages/server:
     dependencies:
       fastify:
-        specifier: 5.12.5
+        specifier: ^5.12.5
         version: 5.12.5
     devDependencies:
       '@apidevtools/swagger-parser':
@@ -103,13 +103,13 @@ importers:
 
   packages/store-postgres:
     dependencies:
+      '@types/pg':
+        specifier: ^8.11.10
+        version: 8.23.1
       pg:
         specifier: ^8.13.1
         version: 8.23.1
     devDependencies:
-      '@types/pg':
-        specifier: ^8.11.10
-        version: 8.23.1
       '@vitest/coverage-v8':
         specifier: ^2.1.8
         version: 2.1.9(vitest@2.1.9(@types/node@22.20.1))
@@ -128,13 +128,13 @@ importers:
 
   packages/store-sqlite:
     dependencies:
+      '@types/better-sqlite3':
+        specifier: ^7.6.12
+        version: 7.6.13
       better-sqlite3:
         specifier: ^12.11.1
         version: 12.11.1
     devDependencies:
-      '@types/better-sqlite3':
-        specifier: ^7.6.12
-        version: 7.6.13
       '@vitest/coverage-v8':
         specifier: ^2.1.8
         version: 2.1.9(vitest@2.1.9(@types/node@22.20.1))

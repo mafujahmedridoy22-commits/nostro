@@ -1,6 +1,6 @@
 {
   "name": "nostro",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Payment reconciliation and ledger-to-accounting infrastructure for Stellar.",
   "license": "Apache-2.0",
   "type": "module",
@@ -48,6 +48,7 @@
     "vitest": "^2.1.8"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   }
 }

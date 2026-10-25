@@ -2,7 +2,11 @@
  * The OpenAPI 3.1 document for the API, built from the same schemas the
  * server validates requests with. Served at `GET /v1/openapi.json`.
  */
+import { readFileSync } from 'node:fs'
 import { components, expectationBody, query, ref } from './schemas.js'
+
+/** This package's version, which is the API's. */
+const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version
 
 const problem = (description: string) => ({
   description,
@@ -32,7 +36,7 @@ export function buildOpenApi() {
     openapi: '3.1.0',
     info: {
       title: 'nostro',
-      version: '0.0.0',
+      version: VERSION,
       summary: 'Payment reconciliation and ledger-to-accounting for Stellar.',
       description:
         'Every amount is an exact decimal string beside its asset, never a JSON number, in both directions. ' +

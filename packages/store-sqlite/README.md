@@ -4,6 +4,10 @@ SQLite store for [nostro](https://github.com/nostro-labs/nostro), for single-nod
 local development. Passes the same Store conformance suite as nostro's in-memory and PostgreSQL
 stores.
 
+```sh
+npm install nostro nostro-store-sqlite
+```
+
 ```ts
 import { SqliteStore } from 'nostro-store-sqlite'
 
@@ -23,4 +27,4 @@ await store.migrate()
 instances in one process would wait on each other's write lock inside SQLite with no way to yield.
 Separate processes are fine.
 
-**Status:** pre-alpha, not yet published.
+**Status:** 0.1.0, early: tested, and run against real testnet accounts, but the API may change before 1.0.

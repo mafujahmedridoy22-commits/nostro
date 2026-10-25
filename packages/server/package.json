@@ -1,8 +1,7 @@
 {
   "name": "nostro-server",
-  "version": "0.0.0",
-  "private": true,
-  "description": "An HTTP API over a nostro store: movements, expectations, exceptions and the journal.",
+  "version": "0.1.0",
+  "description": "An HTTP API over a nostro store, with signed webhooks and an OpenAPI document.",
   "license": "Apache-2.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -26,16 +25,27 @@
     "url": "git+https://github.com/nostro-labs/nostro.git",
     "directory": "packages/server"
   },
+  "homepage": "https://github.com/nostro-labs/nostro/tree/main/packages/server",
+  "bugs": {
+    "url": "https://github.com/nostro-labs/nostro/issues"
+  },
+  "keywords": [
+    "stellar",
+    "reconciliation",
+    "payments",
+    "api",
+    "webhooks"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "fastify": "5.12.5"
+    "fastify": "^5.12.5"
   },
   "peerDependencies": {
-    "nostro": "workspace:*"
+    "nostro": "workspace:^"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.1.0",
@@ -46,5 +56,9 @@
     "nostro-testkit": "workspace:*",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

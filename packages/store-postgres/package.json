@@ -1,7 +1,6 @@
 {
   "name": "nostro-store-postgres",
-  "version": "0.0.0",
-  "private": true,
+  "version": "0.1.0",
   "description": "PostgreSQL store for nostro.",
   "license": "Apache-2.0",
   "type": "module",
@@ -26,23 +25,36 @@
     "url": "git+https://github.com/nostro-labs/nostro.git",
     "directory": "packages/store-postgres"
   },
+  "homepage": "https://github.com/nostro-labs/nostro/tree/main/packages/store-postgres",
+  "bugs": {
+    "url": "https://github.com/nostro-labs/nostro/issues"
+  },
+  "keywords": [
+    "stellar",
+    "reconciliation",
+    "postgresql"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.test.json",
     "test": "vitest run --coverage"
   },
   "dependencies": {
+    "@types/pg": "^8.11.10",
     "pg": "^8.13.1"
   },
   "peerDependencies": {
-    "nostro": "workspace:*"
+    "nostro": "workspace:^"
   },
   "devDependencies": {
-    "@types/pg": "^8.11.10",
     "@vitest/coverage-v8": "^2.1.8",
     "nostro": "workspace:*",
     "nostro-testkit": "workspace:*",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
   }
 }

@@ -3,6 +3,10 @@
 PostgreSQL store for [nostro](https://github.com/nostro-labs/nostro). Passes the same Store
 conformance suite as nostro's in-memory store.
 
+```sh
+npm install nostro nostro-store-postgres
+```
+
 ```ts
 import { PostgresStore } from 'nostro-store-postgres'
 
@@ -19,4 +23,4 @@ await store.migrate() // creates the schema and applies pending migrations; safe
 
 Pass `pool` instead of `connectionString` to share a pool you manage; the store will not end it.
 
-**Status:** pre-alpha, not yet published.
+**Status:** 0.1.0, early: tested, and run against real testnet accounts, but the API may change before 1.0.

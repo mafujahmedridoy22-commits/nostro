@@ -5,6 +5,10 @@ history from Horizon and reconcile it, from a shell or a cron job, against a SQL
 PostgreSQL.
 
 ```sh
+npm install -g nostro-cli
+```
+
+```sh
 nostro migrate                                       # create ./nostro.db
 nostro sync --account G...                           # ingest every effect and fee Horizon keeps
 nostro expect INV-1042 --account G... --amount 25    # record what you are owed
@@ -59,4 +63,4 @@ such as a memo, is printed with control characters escaped, so it cannot rewrite
 
 nostro never signs a transaction and never needs a secret key.
 
-**Status:** pre-alpha, not yet published.
+**Status:** 0.1.0, early: tested, and run against real testnet accounts, but the API may change before 1.0.

@@ -5,6 +5,10 @@ expectations, exceptions and journal entries, record expectations, and download 
 It holds no reconciliation logic of its own; run `sync()` and `reconcile()` (or `nostro sync` and
 `nostro reconcile`) beside it.
 
+```sh
+npm install nostro nostro-server
+```
+
 ```ts
 import { SqliteStore } from 'nostro-store-sqlite'
 import { apiKeys, createServer } from 'nostro-server'
@@ -48,4 +52,4 @@ errors included.
 
 Not here yet: a container image. Webhooks are delivered by `nostro serve --webhook-url`, or by calling `deliverWebhooks()` from `nostro`.
 
-**Status:** pre-alpha, not yet published.
+**Status:** 0.1.0, early: tested, and run against real testnet accounts, but the API may change before 1.0.
