@@ -48,6 +48,22 @@ jobs:
       - run: pnpm -r build
       - run: pnpm test
 
+  packages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.16.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm -r build
+      # Pack, install the tarballs into an empty directory with npm, and use them.
+      - run: node scripts/check-packages.mjs
+
   image:
     runs-on: ubuntu-latest
     steps:
