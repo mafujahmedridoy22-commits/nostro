@@ -8,6 +8,7 @@ import { expectationWithPaid, money } from '../format.js'
 import { clean, json, write } from '../io.js'
 
 const UINT64 = /^\d{1,20}$/
+const HASH = /^[0-9a-f]{64}$/
 const UINT64_MAX = (1n << 64n) - 1n
 
 function uint64(args: Args, name: string): bigint | undefined {
@@ -29,7 +30,13 @@ function assetOf(raw: string): AssetId {
 function memoOf(args: Args): Memo | null {
   const text = string(args, 'memo-text')
   const id = uint64(args, 'memo-id')
-  if (text !== undefined && id !== undefined) throw new UsageError('Give --memo-text or --memo-id, not both.')
+  const hash = string(args, 'memo-hash')
+  const given = [text, id, hash].filter((v) => v !== undefined).length
+  if (given > 1) throw new UsageError('Give one of --memo-text, --memo-id or --memo-hash, not more than one.')
+  if (hash !== undefined) {
+    if (!HASH.test(hash)) throw new UsageError('--memo-hash must be 64 lowercase hex characters.')
+    return { type: 'hash', value: hash }
+  }
   if (id !== undefined) return { type: 'id', value: id }
   if (text === undefined) return null
   // What the payer is asked to send has to fit in a transaction.
@@ -55,7 +62,7 @@ export const expect: Command = {
   usage: '<reference> --account <G...> --amount <amount> [options]',
   help: `Records an expectation for reconcile to match payments against. <reference> is yours (an
 invoice number, say) and must be unique within the tenant; a payment whose text memo matches it,
-normalised, settles it. A muxed id or a memo id is matched exactly and is the stronger signal.
+normalised, settles it. A muxed id or a memo id or hash is matched exactly and is the stronger signal.
 
 Options:
   --account <G...>    The account the money arrives at (or leaves from, with --debit)
@@ -65,6 +72,7 @@ Options:
   --muxed-id <n>      The muxed (M...) id you gave the payer for this
   --memo-text <text>  The text memo you asked the payer to send, if not the reference
   --memo-id <n>       The id memo you asked the payer to send
+  --memo-hash <hex>   The hash memo you asked the payer to send; 64 lowercase hex
   --payer <G...>      An account known to pay this; corroborates, never settles alone. Repeatable
   --due <date>        When it is due
   --expires <date>    After this a payment no longer settles it
@@ -81,6 +89,7 @@ Dates are 2026-10-31 (midnight UTC) or an instant with its offset, 2026-10-31T17
     'muxed-id': { type: 'string' },
     'memo-text': { type: 'string' },
     'memo-id': { type: 'string' },
+    'memo-hash': { type: 'string' },
     payer: { type: 'string', multiple: true },
     due: { type: 'string' },
     expires: { type: 'string' },

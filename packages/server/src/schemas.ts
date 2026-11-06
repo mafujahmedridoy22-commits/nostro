@@ -19,6 +19,7 @@ export const DEFAULT_LIMIT = 100
 export const MAX_LIMIT = 500
 export const ACCOUNT = '^G[A-Z2-7]{55}$'
 export const UINT64 = '^[0-9]{1,20}$'
+export const HEX32 = '^[0-9a-f]{64}$'
 const AMOUNT = '^[0-9]+(\\.[0-9]+)?$'
 
 const paging = {
@@ -77,7 +78,7 @@ export const expectationBody = {
       type: 'object',
       additionalProperties: false,
       required: ['type', 'value'],
-      properties: { type: { enum: ['text', 'id'] }, value: { type: 'string', minLength: 1 } },
+      properties: { type: { enum: ['text', 'id', 'hash'] }, value: { type: 'string', minLength: 1 } },
     },
     payers: { type: 'array', maxItems: 100, items: { type: 'string', pattern: ACCOUNT } },
     dueAt: { type: 'string', format: 'date-time' },

@@ -159,6 +159,24 @@ describe('expectations', () => {
     expect((await app.inject({ url: '/v1/expectations/nope', headers: auth() })).statusCode).toBe(404)
   })
 
+  it('accepts a hash memo and refuses a malformed one', async () => {
+    const app = server(new MemoryStore())
+    const hash = 'a'.repeat(64)
+    const ok = {
+      reference: 'INV-H1',
+      account: A,
+      amount: '10',
+      memo: { type: 'hash', value: hash },
+    }
+    const created = await post(app, ok)
+    expect(created.statusCode).toBe(201)
+    expect(created.json().memo).toEqual({ type: 'hash', value: hash })
+    const bad = await post(app, { ...ok, reference: 'INV-H2', memo: { type: 'hash', value: 'zz' } })
+    expect(bad.statusCode).toBe(422)
+    expect(bad.json()).toMatchObject({ code: 'invalid_expectation' })
+    expect(bad.json().detail).toContain('64 lowercase hex')
+  })
+
   it('lists them with what has been paid, by status and account, a page at a time', async () => {
     const app = server(await seeded())
     await post(app, { reference: 'INV-1043', account: A, amount: '10' })
@@ -193,7 +211,6 @@ describe('expectations', () => {
       { ...ok, account: 'M123' },
       { ...ok, colour: 'red' },
       { ...ok, direction: 'sideways' },
-      { ...ok, memo: { type: 'hash', value: 'aa' } },
       { ...ok, dueAt: 'tomorrow' },
       { ...ok, muxedId: '-5' },
       { ...ok, reference: '' },
@@ -210,6 +227,8 @@ describe('expectations', () => {
       [{ ...ok, memo: { type: 'text', value: 'x'.repeat(29) } }, '28 bytes'],
       [{ ...ok, memo: { type: 'id', value: 'seven' } }, 'whole number'],
       [{ ...ok, memo: { type: 'id', value: '18446744073709551616' } }, 'memo.value must be below 2^64'],
+      [{ ...ok, memo: { type: 'hash', value: 'aa' } }, '64 lowercase hex'],
+      [{ ...ok, memo: { type: 'hash', value: 'A'.repeat(64) } }, '64 lowercase hex'],
       [{ ...ok, muxedId: '18446744073709551616' }, 'muxedId must be below 2^64'],
     ] as const) {
       const res = await post(app, body)

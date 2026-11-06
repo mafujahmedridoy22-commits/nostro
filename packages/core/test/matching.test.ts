@@ -133,6 +133,24 @@ describe('decide: identifying the expectation', () => {
     expect(JSON.stringify(d.evidence)).toContain('matches the muxed id')
   })
 
+  it('matches a hash memo to the hash asked for', () => {
+    // A part-payment, so the amount strategy stays silent and the hash's own score shows.
+    const asked = expectation({ memo: { type: 'hash', value: 'a'.repeat(64) } })
+    const part = usdc('3')
+    expect(allocation(decide(movement({ amount: part, memo: { type: 'hash', value: 'a'.repeat(64) } }), [candidate(asked)]))).toMatchObject({
+      expectationId: asked.id,
+      strategy: 'memo_hash',
+      score: 0.95,
+    })
+  })
+
+  it('does not match a different hash', () => {
+    const asked = expectation({ memo: { type: 'hash', value: 'a'.repeat(64) } })
+    const d = decide(movement({ memo: { type: 'hash', value: 'b'.repeat(64) } }), [candidate(asked)])
+    expect(d.outcome).toBe('exception')
+    expect(JSON.stringify(d.evidence)).not.toContain('memo_hash')
+  })
+
   it.each(['INV-00123', 'inv #00123', 'Invoice 00123', 'ＩＮＶ００１２３', 'inv​00123'])(
     'matches the text memo %j to reference INV-00123',
     (memo) => {

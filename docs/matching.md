@@ -24,6 +24,7 @@ randomness, and every decision records its reasons as evidence.
 |---|---|---|---|---|
 | `muxed_id` | identifier | 1.00 | paid to the `M…` address issued for the expectation | none if ids are issued uniquely |
 | `memo_id` | identifier | 0.95 | `MEMO_ID` equals the memo id asked for, or the expectation's muxed id | payer typo or a reused old invoice id |
+| `memo_hash` | identifier | 0.95 | `MEMO_HASH` equals the hash asked for | none; hashes are opaque and compared exactly |
 | `memo_text` | identifier | 0.85 | normalised text memo equals the normalised reference or requested memo | normalisation is deliberately loose |
 | `exact_amount` | amount | 0.60 unique / 0.20 shared | exactly the amount still owed, same asset, inside the window | any two invoices for the same amount |
 
@@ -100,7 +101,6 @@ These are known gaps, each planned as its own self-contained piece of work:
 
 - **Truncated text memos.** A reference longer than 28 bytes of UTF-8 is cut by the wallet; nostro does
   not yet detect truncation or prefix-match it.
-- **`MEMO_HASH` references**, for references too long for a text memo.
 - **Known-payer corroboration**, scoring a payment from an account registered as the payer.
 - **Amount fingerprints**, a unique sub-unit suffix per invoice for payers who cannot send memos.
 - **Claimable balances** as a two-step create-then-claim lifecycle.

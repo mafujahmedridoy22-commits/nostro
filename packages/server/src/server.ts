@@ -32,7 +32,7 @@ import {
 import type { Authenticate } from './auth.js'
 import { buildOpenApi } from './openapi.js'
 import { HttpProblem } from './problem.js'
-import { UINT64, expectationBody, idParams, query, resolveBody } from './schemas.js'
+import { HEX32, UINT64, expectationBody, idParams, query, resolveBody } from './schemas.js'
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -69,7 +69,7 @@ interface ExpectationBody {
   asset?: string
   direction?: 'credit' | 'debit'
   muxedId?: string
-  memo?: { type: 'text' | 'id'; value: string }
+  memo?: { type: 'text' | 'id' | 'hash'; value: string }
   payers?: string[]
   dueAt?: string
   expiresAt?: string
@@ -121,6 +121,9 @@ function toNewExpectation(tenantId: string, b: ExpectationBody): NewExpectation 
   } else if (b.memo?.type === 'id') {
     if (!new RegExp(UINT64).test(b.memo.value)) throw invalid('memo.value must be a whole number for an id memo.')
     memo = { type: 'id', value: uint64('memo.value', b.memo.value) }
+  } else if (b.memo?.type === 'hash') {
+    if (!new RegExp(HEX32).test(b.memo.value)) throw invalid('memo.value must be 64 lowercase hex characters for a hash memo.')
+    memo = { type: 'hash', value: b.memo.value }
   }
   return {
     tenantId,

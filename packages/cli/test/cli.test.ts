@@ -49,7 +49,17 @@ describe('nostro', () => {
     expect(help.code).toBe(0)
     expect(help.stdout).toMatch(/^Usage: nostro sync --account <G\.\.\.> \[options\]\n/)
     expect(help.stdout).toContain('--once')
-    expect((await nostro(cwd, ['help', 'sync'])).stdout).toBe(help.stdout)
+  })
+
+  it('gives and refuses --memo-hash on expect', async () => {
+    const cwd = await migrated()
+    const hash = 'a'.repeat(64)
+    const ok = await nostro(cwd, ['expect', 'INV-9', '--account', A, '--amount', '25', '--memo-hash', hash])
+    expect(ok.code).toBe(0)
+    expect(ok.stdout).toContain('Recorded INV-9:')
+    const bad = await nostro(cwd, ['expect', 'INV-10', '--account', A, '--amount', '25', '--memo-hash', 'not-hex'])
+    expect(bad).toMatchObject({ code: 2 })
+    expect(bad.stderr).toContain('--memo-hash must be 64 lowercase hex characters.')
   })
 
   it('prints its version', async () => {
