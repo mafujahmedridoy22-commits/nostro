@@ -14,6 +14,7 @@ import { exportJournal } from './commands/export.js'
 import { migrate } from './commands/migrate.js'
 import { post } from './commands/post.js'
 import { reconcile } from './commands/reconcile.js'
+import { resolve } from './commands/resolve.js'
 import { serve } from './commands/serve.js'
 import { sync } from './commands/sync.js'
 import type { Io } from './io.js'
@@ -26,6 +27,7 @@ export const COMMANDS: readonly Command[] = [
   expectations,
   reconcile,
   exceptions,
+  resolve,
   post,
   doctor,
   exportJournal,

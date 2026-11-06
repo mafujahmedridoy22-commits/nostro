@@ -14,7 +14,7 @@ export const exceptions: Command = {
   usage: '[options]',
   help: `Lists exceptions, oldest first: payments that matched nothing, matched more than one thing,
 overpaid, arrived in a lookalike asset, and so on. Each one says why, and --json includes the
-evidence (per-candidate signals and scores) behind the decision.
+evidence (per-candidate signals and scores) behind the decision. Answer one with "nostro resolve".
 
 Options:
   --status <s>        open (the default), resolved, dismissed or all
@@ -55,13 +55,13 @@ ${COMMON_HELP}`,
     await write(
       io.stdout,
       table([
-        ['OPENED (UTC)', 'CODE', 'STATUS', 'AMOUNT', 'MOVEMENT', 'DETAIL'],
+        ['OPENED (UTC)', 'CODE', 'STATUS', 'AMOUNT', 'ID', 'DETAIL'],
         ...list.map((x) => [
           when(x.openedAt),
           x.code,
           x.status,
           x.amount === null ? '' : `${x.amount.toString()} ${assetLabel(x.amount.asset)}`,
-          x.movementId ?? '',
+          x.id,
           x.detail,
         ]),
       ]),

@@ -14,6 +14,7 @@ nostro sync --account G...                           # ingest every effect and f
 nostro expect INV-1042 --account G... --amount 25    # record what you are owed
 nostro reconcile                                     # decide every pending movement, and post it
 nostro exceptions                                    # what needs a person, and why
+nostro resolve <id> --apply INV-1042 --note "..."    # that payment was for this invoice
 nostro doctor --attest --account G...                # check the books, and the balances on chain
 nostro export --output journal.csv                   # the journal, a row per line
 ```
@@ -26,6 +27,7 @@ nostro export --output journal.csv                   # the journal, a row per li
 | `expectations` | Lists expectations with what has been allocated to each. |
 | `reconcile` | Matches pending movements against expectations and posts each decision to the journal. |
 | `exceptions` | Lists what reconcile would not decide alone, with the reason (and, in `--json`, the evidence). |
+| `resolve` | Answers an exception: `--apply <reference[=amount]>` (this payment was for that invoice), `--ignore` (not something to reconcile) or `--close`, with a required `--note`. Moves the movement, its exceptions and the journal together. |
 | `post` | Posts to the journal any decision it does not reflect yet, such as one made outside `reconcile`. Idempotent. |
 | `doctor` | Checks invariants I1 and I3 over every record, and with `--attest` I2: each account's recorded movements against its on-chain balance in every asset. Exits 1 if any does not hold. |
 | `export` | Writes the journal as CSV (RFC 4180), with a date range; to stdout, or to `--output`, which it will not overwrite without `--force` and never leaves half-written. |
@@ -35,10 +37,6 @@ nostro export --output journal.csv                   # the journal, a row per li
 `--keys-file` (one per line), never from the command line, where `ps` would show them. It listens on
 127.0.0.1:8080 unless told otherwise (`--host`, `--port`, or `NOSTRO_HOST`, `NOSTRO_PORT`). The
 worker syncs one tenant's accounts (`--tenant`); the API serves every tenant that has a key.
-
-Resolving exceptions from the command line is not there yet: resolving one by hand can leave its
-movement's disposition unsupported (see `docs/invariants.md`), so it needs a workflow that
-allocates or ignores the movement in the same step.
 
 Every command takes `--db` (a SQLite file, `sqlite:<path>`, or a `postgres://` URL; default
 `./nostro.db`) and `--tenant` (default `default`), and all but `export` take `--json`. `nostro <command> --help` lists the

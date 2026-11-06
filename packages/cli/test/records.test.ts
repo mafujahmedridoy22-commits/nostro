@@ -128,6 +128,108 @@ describe('nostro expect', () => {
   })
 })
 
+describe('nostro resolve', () => {
+  const openExceptions = async (cwd: string) =>
+    JSON.parse((await nostro(cwd, ['exceptions', '--json'])).stdout) as { id: string; code: string; amount: string }[]
+
+  it('applies a payment to an invoice, which settles it and moves it in the books', async () => {
+    const cwd = await synced()
+    await nostro(cwd, ['reconcile'])
+    const credit = (await openExceptions(cwd)).find((x) => x.amount === '25.0000000')!
+    await nostro(cwd, ['expect', 'INV-9', '--account', A, '--amount', '25'])
+
+    const run = await nostro(cwd, ['resolve', credit.id, '--apply', 'INV-9', '--note', 'customer called'])
+    expect(run).toMatchObject({ code: 0, stderr: '' })
+    expect(run.stdout).toMatch(
+      /^Applied 25\.0000000 XLM to INV-9\.\nMovement \S+ is now allocated\.\nException \S+ \(UNMATCHED_NO_CANDIDATE\) is resolved\.\nPosted a reclass entry to the journal\.\n$/,
+    )
+    expect((await nostro(cwd, ['expectations', '--status', 'settled'])).stdout).toContain('INV-9')
+    expect((await openExceptions(cwd)).map((x) => x.id)).not.toContain(credit.id)
+    expect((await nostro(cwd, ['doctor'])).code).toBe(0)
+    expect((await nostro(cwd, ['export'])).stdout).toContain(',reclass,')
+  })
+
+  it('splits a payment, with amounts where given, and says what is still open', async () => {
+    const cwd = await synced()
+    await nostro(cwd, ['reconcile'])
+    const credit = (await openExceptions(cwd)).find((x) => x.amount === '25.0000000')!
+    await nostro(cwd, ['expect', 'A=1', '--account', A, '--amount', '10'])
+    await nostro(cwd, ['expect', 'B', '--account', A, '--amount', '100'])
+
+    const run = await nostro(cwd, ['resolve', credit.id, '--apply', 'A=1=10', '--apply', 'B=5.5', '--note', 'two invoices', '--json'])
+    expect(run.code).toBe(0)
+    const body = JSON.parse(run.stdout)
+    expect(body.allocations.map((a: { amount: string }) => a.amount)).toEqual(['10.0000000', '5.5000000'])
+    expect(body).toMatchObject({ movement: { disposition: 'partial' }, opened: { code: 'PARTIAL_UNRESOLVED', amount: '9.5000000' }, journalEntry: { kind: 'reclass' } })
+
+    const rest = await nostro(cwd, ['resolve', body.opened.id, '--ignore', '--note', 'keep the rest'])
+    expect(rest.stdout).toMatch(/is now ignored\.\nException \S+ \(PARTIAL_UNRESOLVED\) is dismissed\.\nPosted a reclass entry/)
+    expect((await nostro(cwd, ['doctor'])).code).toBe(0)
+  })
+
+  it('closes an exception no movement depends on, and refuses one that would strand a movement', async () => {
+    const cwd = await synced()
+    await nostro(cwd, ['reconcile'])
+    const debit = (await openExceptions(cwd)).find((x) => x.code === 'UNEXPECTED_DEBIT')!
+    expect(await nostro(cwd, ['resolve', debit.id, '--close', '--note', 'n'])).toMatchObject({ code: 1 })
+    expect((await nostro(cwd, ['resolve', debit.id, '--close', '--note', 'n'])).stderr).toMatch(/apply the movement or ignore it instead/)
+
+    const store = new SqliteStore({ filename: join(cwd, 'nostro.db') })
+    const about = await store.transaction((tx) => tx.openException({ tenantId: 'default', code: 'MEMO_MALFORMED', account: A, detail: 'x' }))
+    await store.close()
+    const closed = await nostro(cwd, ['resolve', about.id, '--close', '--dismiss', '--note', 'seen'])
+    expect(closed.stdout).toBe(`Exception ${about.id} (MEMO_MALFORMED) is dismissed.\n`)
+    const noMovement = await nostro(cwd, ['resolve', about.id, '--apply', 'X', '--note', 'n'])
+    expect(noMovement.code).toBe(2)
+    expect(noMovement.stderr).toContain('this exception is about no movement')
+  })
+
+  it('exits 1 on what the rules refuse, leaving everything alone, and 2 on a bad command line', async () => {
+    const cwd = await synced()
+    await nostro(cwd, ['reconcile'])
+    const credit = (await openExceptions(cwd)).find((x) => x.amount === '25.0000000')!
+    await nostro(cwd, ['expect', 'INV-USDC', '--account', A, '--amount', '25', '--asset', `USDC:${ISSUER}`])
+    await nostro(cwd, ['expect', 'SMALL', '--account', A, '--amount', '1'])
+    for (const [argv, message] of [
+      [[credit.id, '--apply', 'NOPE', '--note', 'n'], 'No expectation NOPE.'],
+      [['nope', '--ignore', '--note', 'n'], 'No exception nope.'],
+      [[credit.id, '--apply', 'INV-USDC', '--note', 'n'], 'allocation_asset'],
+      [[credit.id, '--apply', 'SMALL=2', '--note', 'n'], 'allocation_over_expectation'],
+    ] as const) {
+      const run = await nostro(cwd, ['resolve', ...argv])
+      expect(run.code, argv.join(' ')).toBe(1)
+      expect(run.stderr).toContain(message)
+    }
+    expect((await openExceptions(cwd)).map((x) => x.id)).toContain(credit.id)
+
+    for (const [argv, message] of [
+      [[], 'Give the exception id'],
+      [[credit.id, '--note', 'n'], 'Say what to do'],
+      [[credit.id, '--ignore', '--close', '--note', 'n'], 'Say what to do'],
+      [[credit.id, '--apply', 'SMALL', '--ignore', '--note', 'n'], 'Say what to do'],
+      [[credit.id, '--ignore'], '--note is required'],
+      [[credit.id, '--ignore', '--note', ' '], '--note is required'],
+      [[credit.id, '--ignore', '--dismiss', '--note', 'n'], '--dismiss only applies with --close'],
+      [[credit.id, 'extra', '--ignore', '--note', 'n'], 'Unexpected argument'],
+      [[credit.id, '--apply', 'SMALL=1.00000001', '--note', 'n'], 'refusing to round'],
+    ] as const) {
+      const run = await nostro(cwd, ['resolve', ...argv])
+      expect(run.code, argv.join(' ')).toBe(2)
+      expect(run.stderr).toContain(message)
+    }
+  })
+
+  it('escapes a hostile reference in what it prints', async () => {
+    const cwd = await synced()
+    await nostro(cwd, ['reconcile'])
+    const credit = (await openExceptions(cwd)).find((x) => x.amount === '25.0000000')!
+    await nostro(cwd, ['expect', 'X\u001b[2J', '--account', A, '--amount', '25'])
+    const run = await nostro(cwd, ['resolve', credit.id, '--apply', 'X\u001b[2J', '--note', 'n'])
+    expect(run.stdout).toContain('to X\\u001b[2J.')
+    expect(run.stdout).not.toContain('\u001b')
+  })
+})
+
 describe('nostro exceptions', () => {
   it('lists the open exceptions, oldest first, filtered by code or status', async () => {
     const cwd = await synced()
@@ -135,7 +237,7 @@ describe('nostro exceptions', () => {
     await nostro(cwd, ['reconcile'])
     const open = await nostro(cwd, ['exceptions'])
     const lines = open.stdout.trimEnd().split('\n')
-    expect(lines[0]).toMatch(/^OPENED \(UTC\) +CODE +STATUS +AMOUNT +MOVEMENT +DETAIL$/)
+    expect(lines[0]).toMatch(/^OPENED \(UTC\) +CODE +STATUS +AMOUNT +ID +DETAIL$/)
     expect(lines.slice(1).map((l) => l.split(/ {2,}/).slice(1, 4))).toEqual([
       ['UNMATCHED_NO_CANDIDATE', 'open', '25.0000000 XLM'],
       ['UNEXPECTED_DEBIT', 'open', '5.0000000 XLM'],

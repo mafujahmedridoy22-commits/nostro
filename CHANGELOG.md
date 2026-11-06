@@ -24,6 +24,9 @@ webhooks.
 - **Matching.** `reconcile()` matches by muxed id, id memo and text memo (normalised). An amount
   alone is only ever a suggestion. Overpayments, duplicates, wrong assets, late payments and
   ambiguous matches become exceptions with evidence ([docs/matching.md](./docs/matching.md)).
+- **Deciding by hand.** `applyMovement()`, `ignoreMovement()` and `closeException()`, or
+  `decideException()` by reference, answer an exception. The movement, its exceptions and the
+  journal change together, and what an application leaves over stays open.
 - **Journal.** Double-entry, posted in the same transaction as each decision. Cash is posted once,
   and later changes are adjustment entries. The chart of accounts is configurable, and the journal
   exports to CSV ([docs/journal.md](./docs/journal.md),
@@ -47,8 +50,8 @@ webhooks.
 
 ### `nostro-server`
 
-- An HTTP API: movements, expectations (list and create), exceptions, the journal (JSON and CSV),
-  and the event log.
+- An HTTP API: movements, expectations (list and create), exceptions (list and resolve), the
+  journal (JSON and CSV), and the event log.
 - Each API key belongs to a tenant. Keys are stored as hashes and compared in constant time.
 - RFC 9457 problem details, and paging by `seq`. Request bodies containing JSON numbers are
   refused, because a number may already have been rounded by the time it is parsed.
@@ -56,16 +59,17 @@ webhooks.
 
 ### `nostro-cli`
 
-- `nostro migrate`, `sync`, `expect`, `expectations`, `reconcile`, `exceptions`, `post`, `doctor`,
-  `export` and `serve`. `serve` runs the API, syncs and reconciles on an interval, and delivers
+- `nostro migrate`, `sync`, `expect`, `expectations`, `reconcile`, `exceptions`, `resolve`, `post`,
+  `doctor`, `export` and `serve`. `serve` runs the API, syncs and reconciles on an interval, and delivers
   webhooks. Exit codes suit cron and CI.
 - A container image (`Dockerfile`) and a Docker Compose example with PostgreSQL and a webhook
   receiver.
 
 ### Not handled yet
 
-- **Resolving exceptions.** The store can resolve an exception, but there is no workflow yet that
-  allocates or ignores the movement in the same step, so neither the CLI nor the API offers it.
+- **Refunds** are not linked to the payment they refund. A person can ignore both, with reasons.
+- **Money paid into another of your own wallets** cannot be applied to an invoice on the wallet it
+  should have gone to: allocations stay on one account.
 - **Matching:** truncated text memos, `MEMO_HASH` references, known-payer corroboration, amount
   fingerprints, claimable-balance lifecycles, several payments in one transaction, path-payment
   slippage, and one payment covering several invoices with no per-invoice reference.

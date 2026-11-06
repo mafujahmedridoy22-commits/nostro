@@ -119,6 +119,7 @@ nostro sync --account G...                           # ingest every effect and f
 nostro expect INV-1042 --account G... --amount 25    # record what you are owed
 nostro reconcile                                     # decide every pending movement, and post it
 nostro exceptions                                    # what needs a person, and why
+nostro resolve <id> --apply INV-1042 --note "..."    # that payment was for this invoice
 nostro doctor --attest --account G...                # check the books, and the balances on chain
 nostro export --output journal.csv                   # the journal, a row per line
 ```

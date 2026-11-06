@@ -47,7 +47,8 @@ const report = await reconcile({ store, tenantId: 'acme' })
 
 Payments match by muxed id, memo id or text memo (normalised, so `inv #1042` finds `INV-1042`). An
 amount alone is only ever a suggestion. Overpayments, duplicates, lookalike assets and late payments
-go to an exceptions queue, with the evidence for each decision. Every decision is posted to a
+go to an exceptions queue, with the evidence for each decision, and `applyMovement()` or
+`ignoreMovement()` answer them. Every decision is posted to a
 double-entry journal in the same transaction (`journalCsv()` exports it), and written to an event
 log that `deliverWebhooks()` posts to a URL, signed (`verifyWebhook()` checks the signature).
 
