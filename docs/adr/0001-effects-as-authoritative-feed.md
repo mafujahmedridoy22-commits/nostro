@@ -2,6 +2,12 @@
 
 **Status:** accepted · 2026-09-07 · amended by [ADR 0006](./0006-normalising-horizon-effects.md)
 
+> **Corrected 2026-11-06.** The context below said `/payments` misses SAC transfers. Checked against
+> live pubnet, it lists them, as `invoke_host_function` records with the amounts in
+> `asset_balance_changes` and no top-level `amount`, `from` or `to`. It does not list claimable-balance
+> claims, trades from crossed offers or liquidity pool withdrawals, and never lists fees, so the
+> decision stands.
+
 ## Context
 
 The obvious ingestion source is `/accounts/{id}/payments`. It returns only `create_account`,

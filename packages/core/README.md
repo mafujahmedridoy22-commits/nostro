@@ -3,9 +3,9 @@
 **Payment reconciliation and ledger-to-accounting infrastructure for Stellar.**
 
 Did this expected payment arrive, in full, from whom, and how do I record it? Most Stellar products
-answer that with a Horizon `payments` stream and an amount comparison. That never sees SAC transfers
-or claimable balances, ignores the asset issuer, drops events on reconnect, and re-applies them after
-a restart. nostro ingests every effect and fee, matches payments to what you are owed, posts a
+answer that with a Horizon `payments` stream and an amount comparison. That skips SAC transfers, never
+sees claimable balances being claimed, ignores the asset issuer, misses what arrives while it is down,
+and re-applies payments after a restart. nostro ingests every effect and fee, matches payments to what you are owed, posts a
 double-entry journal, and checks its own books against the chain.
 
 > **0.1.0, early.** Everything below is implemented and tested, and has been run against real

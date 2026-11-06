@@ -33,13 +33,18 @@ server.payments().forAccount(ACCOUNT).stream({
 
 That code is wrong in at least six ways, and every one of them is a real incident:
 
-- `/payments` **never sees** a payment that arrived through a Soroban contract (SAC `transfer`),
-  a claimable balance, or a trade. Those only appear on `/effects`.
-- A dropped SSE reconnect silently loses events; nothing detects the gap.
+- A payment through a Soroban contract (SAC `transfer`) arrives as `invoke_host_function`, with no
+  top-level `amount`, so this skips it. A claimable balance being claimed, a crossed offer or a pool
+  withdrawal never appears on `/payments` at all; those are only on `/effects`.
+- Start the stream from `now` after a restart and whatever arrived while it was down is gone, and
+  nothing detects the gap.
 - `op.amount` matching ignores the **issuer**, so a lookalike `USDC` from any issuer settles a real invoice.
 - Partial payments, overpayments and duplicate deliveries all fall through.
 - `amount` parsed as a `number` loses stroops above ~900M XLM and can't hold most 7-decimal values.
-- A restart re-reads from an unknown cursor and re-applies effects that already committed.
+- A restart that re-reads from an older cursor re-applies payments it had already applied.
+
+[examples/before-after](./examples/before-after) runs a careful version of this code and nostro over
+the same payments, and shows what each concludes.
 
 nostro is the layer that gets this right once, so each product doesn't re-derive it badly.
 
