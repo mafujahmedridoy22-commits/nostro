@@ -99,6 +99,12 @@ export function checkAllocation(
       `a ${movement.direction} movement cannot settle a ${expectation.direction} expectation`,
     )
   }
+  if (movement.account !== expectation.account) {
+    throw new ConstraintError(
+      'allocation_account',
+      `money that moved on ${movement.account} cannot settle an expectation on ${expectation.account}`,
+    )
+  }
   if (onMovement.some((a) => a.expectationId === expectation.id)) {
     throw new ConstraintError(
       'allocation_unique',

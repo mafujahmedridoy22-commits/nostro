@@ -156,8 +156,8 @@ export interface StoreTx extends StoreReader, JournalTx {
 
   /**
    * Allocate part of a movement to an expectation, and update the
-   * expectation's status. Refuses (see `ConstraintName`) a cross-asset or
-   * cross-direction allocation, a second allocation for the same pair, a
+   * expectation's status. Refuses (see `ConstraintName`) a cross-asset,
+   * cross-direction or cross-account allocation, a second allocation for the same pair, a
    * cancelled expectation, or anything that would over-allocate either side.
    * The over-allocation checks see every committed allocation, so two
    * concurrent transactions cannot both spend the same remaining amount.
@@ -234,6 +234,7 @@ export type ConstraintName =
   | 'allocation_unique'
   | 'allocation_asset'
   | 'allocation_direction'
+  | 'allocation_account'
   | 'allocation_over_movement'
   | 'allocation_over_expectation'
   | 'allocation_expectation_cancelled'

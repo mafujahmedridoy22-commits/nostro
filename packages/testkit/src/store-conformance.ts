@@ -405,6 +405,12 @@ export function describeStoreConformance(name: string, makeStore: () => Store | 
         await expect(alloc(m.id, e.id, usdc('10'))).rejects.toMatchObject(constraint('allocation_direction'))
       })
 
+      it("refuses money that moved on another account: it never reached this invoice's wallet", async () => {
+        const e = await expect10()
+        const m = await record({ account: OTHER_ACCOUNT })
+        await expect(alloc(m.id, e.id, usdc('10'))).rejects.toMatchObject(constraint('allocation_account'))
+      })
+
       it('refuses a second allocation for the same pair', async () => {
         const e = await expect10()
         const m = await record()
