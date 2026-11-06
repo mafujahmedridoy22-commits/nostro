@@ -1,5 +1,5 @@
 {
-  "name": "nostro",
+  "name": "@nostro-labs/nostro",
   "version": "0.1.0",
   "description": "Payment reconciliation and ledger-to-accounting infrastructure for Stellar.",
   "license": "Apache-2.0",

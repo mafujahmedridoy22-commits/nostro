@@ -6,7 +6,7 @@ export default defineConfig({
     // Run against core's source so the store, testkit and tests share one copy of every class.
     alias: {
       'nostro-testkit': fileURLToPath(new URL('../testkit/src/index.ts', import.meta.url)),
-      nostro: fileURLToPath(new URL('../core/src/index.ts', import.meta.url)),
+      '@nostro-labs/nostro': fileURLToPath(new URL('../core/src/index.ts', import.meta.url)),
     },
   },
   test: {

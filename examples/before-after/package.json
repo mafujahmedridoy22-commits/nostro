@@ -6,6 +6,6 @@
     "start": "node compare.mjs"
   },
   "dependencies": {
-    "nostro": "^0.1.0"
+    "@nostro-labs/nostro": "^0.1.0"
   }
 }

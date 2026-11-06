@@ -60,10 +60,10 @@ try {
     join(app, 'use.mjs'),
     `
 import assert from 'node:assert/strict'
-import { MemoryStore, Money, NATIVE, doctor, journalCsv, reconcile, signWebhook, verifyWebhook } from 'nostro'
-import { SqliteStore } from 'nostro-store-sqlite'
-import { PostgresStore } from 'nostro-store-postgres'
-import { apiKeys, createServer } from 'nostro-server'
+import { MemoryStore, Money, NATIVE, doctor, journalCsv, reconcile, signWebhook, verifyWebhook } from '@nostro-labs/nostro'
+import { SqliteStore } from '@nostro-labs/store-sqlite'
+import { PostgresStore } from '@nostro-labs/store-postgres'
+import { apiKeys, createServer } from '@nostro-labs/server'
 
 const A = 'G' + 'A'.repeat(55)
 assert.equal(Money.parse('0.1', NATIVE).add(Money.parse('0.2', NATIVE)).toString(), '0.3000000')
@@ -118,10 +118,10 @@ console.log('used')
   writeFileSync(
     join(app, 'types.ts'),
     `
-import { Money, NATIVE, type Store, type MovementJson } from 'nostro'
-import { SqliteStore } from 'nostro-store-sqlite'
-import { PostgresStore } from 'nostro-store-postgres'
-import { createServer, apiKeys } from 'nostro-server'
+import { Money, NATIVE, type Store, type MovementJson } from '@nostro-labs/nostro'
+import { SqliteStore } from '@nostro-labs/store-sqlite'
+import { PostgresStore } from '@nostro-labs/store-postgres'
+import { createServer, apiKeys } from '@nostro-labs/server'
 const store: Store = new SqliteStore({ filename: 'x.db' })
 const pg: Store = new PostgresStore({ connectionString: 'postgres://u@h/d' })
 void pg

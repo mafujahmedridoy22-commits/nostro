@@ -61,7 +61,7 @@ movement should now be accounted for and how it already is ([ADR 0007](./adr/000
 ## Export
 
 ```ts
-import { journalCsv, journalCsvRows } from 'nostro'
+import { journalCsv, journalCsvRows } from '@nostro-labs/nostro'
 
 const october = await journalCsv({ store, tenantId: 'acme', from: new Date('2026-10-01'), to: new Date('2026-11-01') })
 for await (const row of journalCsvRows({ store, tenantId: 'acme' })) process.stdout.write(row) // streams

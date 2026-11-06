@@ -7,7 +7,7 @@
  * what notices when one of them doesn't.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { Disposition, NewException, NewMovement, Store, StoreTx } from 'nostro'
+import type { Disposition, NewException, NewMovement, Store, StoreTx } from '@nostro-labs/nostro'
 import { describeJournalConformance } from './journal-conformance.js'
 import {
   ConstraintError,
@@ -18,7 +18,7 @@ import {
   asset,
   doctor,
   reconcile,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 
 const T = 'tenant-a'
 const T2 = 'tenant-b'

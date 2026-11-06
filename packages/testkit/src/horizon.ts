@@ -4,8 +4,8 @@
  * serves the feeds the Horizon sources read, so tests can run them offline.
  */
 import { expect } from 'vitest'
-import type { HorizonAccount, HorizonEffect, HorizonOperation, HorizonTransaction } from 'nostro'
-import { HorizonClient } from 'nostro'
+import type { HorizonAccount, HorizonEffect, HorizonOperation, HorizonTransaction } from '@nostro-labs/nostro'
+import { HorizonClient } from '@nostro-labs/nostro'
 
 /** A TOID for operation `op` of the first transaction in `ledger`. */
 export const toid = (ledger: number, op: number): string =>

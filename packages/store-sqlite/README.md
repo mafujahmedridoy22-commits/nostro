@@ -1,15 +1,15 @@
-# nostro-store-sqlite
+# @nostro-labs/store-sqlite
 
 SQLite store for [nostro](https://github.com/nostro-labs/nostro), for single-node deployments and
 local development. Passes the same Store conformance suite as nostro's in-memory and PostgreSQL
 stores.
 
 ```sh
-npm install nostro nostro-store-sqlite
+npm install @nostro-labs/nostro @nostro-labs/store-sqlite
 ```
 
 ```ts
-import { SqliteStore } from 'nostro-store-sqlite'
+import { SqliteStore } from '@nostro-labs/store-sqlite'
 
 const store = new SqliteStore({ filename: './nostro.db' })
 await store.migrate()

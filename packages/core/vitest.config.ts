@@ -7,7 +7,7 @@ export default defineConfig({
     // so tests, testkit and coverage all see one copy of every class.
     alias: {
       'nostro-testkit': fileURLToPath(new URL('../testkit/src/index.ts', import.meta.url)),
-      nostro: fileURLToPath(new URL('./src/index.ts', import.meta.url)),
+      '@nostro-labs/nostro': fileURLToPath(new URL('./src/index.ts', import.meta.url)),
     },
   },
   test: {

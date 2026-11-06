@@ -1,4 +1,4 @@
-# nostro-server
+# @nostro-labs/server
 
 An HTTP API over a [nostro](https://github.com/nostro-labs/nostro) store: list movements,
 expectations, exceptions and journal entries, record expectations, and download the journal as CSV.
@@ -6,12 +6,12 @@ It holds no reconciliation logic of its own; run `sync()` and `reconcile()` (or 
 `nostro reconcile`) beside it.
 
 ```sh
-npm install nostro nostro-server
+npm install @nostro-labs/nostro @nostro-labs/server
 ```
 
 ```ts
-import { SqliteStore } from 'nostro-store-sqlite'
-import { apiKeys, createServer } from 'nostro-server'
+import { SqliteStore } from '@nostro-labs/store-sqlite'
+import { apiKeys, createServer } from '@nostro-labs/server'
 
 const store = new SqliteStore({ filename: './nostro.db' })
 const app = createServer({ store, authenticate: apiKeys({ [process.env.ACME_API_KEY!]: 'acme' }) })

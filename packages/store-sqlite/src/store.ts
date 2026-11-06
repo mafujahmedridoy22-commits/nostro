@@ -44,7 +44,7 @@ import type {
   SchemaVersion,
   StoreReader,
   StoreTx,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 import {
   ConstraintError,
   Money,
@@ -66,7 +66,7 @@ import {
   movementDecided,
   parseAsset,
   sameFacts,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 import { MIGRATIONS } from './schema.js'
 
 export interface SqliteStoreOptions {

@@ -5,7 +5,7 @@
     "noEmit": true,
     // Tests and the shared testkit see one copy of core: its source.
     "paths": {
-      "nostro": ["./src/index.ts"],
+      "@nostro-labs/nostro": ["./src/index.ts"],
       "nostro-testkit": ["../testkit/src/index.ts"]
     }
   },

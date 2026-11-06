@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import Database from 'better-sqlite3'
 import { afterAll, describe, expect, it } from 'vitest'
-import { Money, NATIVE, doctor } from 'nostro'
+import { Money, NATIVE, doctor } from '@nostro-labs/nostro'
 import { describeStoreConformance, describeStoreProperties } from 'nostro-testkit'
 import { SqliteStore } from '../src/index.js'
 

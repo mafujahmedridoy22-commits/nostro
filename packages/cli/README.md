@@ -1,11 +1,11 @@
-# nostro-cli
+# @nostro-labs/cli
 
 The command line for [nostro](https://github.com/nostro-labs/nostro): ingest a Stellar account's
 history from Horizon and reconcile it, from a shell or a cron job, against a SQLite file or
 PostgreSQL.
 
 ```sh
-npm install -g nostro-cli
+npm install -g @nostro-labs/cli
 ```
 
 ```sh
@@ -31,7 +31,7 @@ nostro export --output journal.csv                   # the journal, a row per li
 | `post` | Posts to the journal any decision it does not reflect yet, such as one made outside `reconcile`. Idempotent. |
 | `doctor` | Checks invariants I1 and I3 over every record, and with `--attest` I2: each account's recorded movements against its on-chain balance in every asset. Exits 1 if any does not hold. |
 | `export` | Writes the journal as CSV (RFC 4180), with a date range; to stdout, or to `--output`, which it will not overwrite without `--force` and never leaves half-written. |
-| `serve` | Runs the HTTP API ([nostro-server](../server/README.md)). With `--account`s to watch, syncs and reconciles them every `--interval` seconds; with `--webhook-url`, delivers each decision there, signed ([docs/webhooks.md](../../docs/webhooks.md)). Stops cleanly on Ctrl-C or SIGTERM. |
+| `serve` | Runs the HTTP API ([@nostro-labs/server](../server/README.md)). With `--account`s to watch, syncs and reconciles them every `--interval` seconds; with `--webhook-url`, delivers each decision there, signed ([docs/webhooks.md](../../docs/webhooks.md)). Stops cleanly on Ctrl-C or SIGTERM. |
 
 `serve` reads API keys as `tenant:key` pairs from `NOSTRO_API_KEYS` (comma-separated) or
 `--keys-file` (one per line), never from the command line, where `ps` would show them. It listens on

@@ -1,14 +1,14 @@
-# nostro-store-postgres
+# @nostro-labs/store-postgres
 
 PostgreSQL store for [nostro](https://github.com/nostro-labs/nostro). Passes the same Store
 conformance suite as nostro's in-memory store.
 
 ```sh
-npm install nostro nostro-store-postgres
+npm install @nostro-labs/nostro @nostro-labs/store-postgres
 ```
 
 ```ts
-import { PostgresStore } from 'nostro-store-postgres'
+import { PostgresStore } from '@nostro-labs/store-postgres'
 
 const store = new PostgresStore({ connectionString: process.env.DATABASE_URL, schema: 'nostro' })
 await store.migrate() // creates the schema and applies pending migrations; safe to run concurrently

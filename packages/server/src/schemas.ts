@@ -12,7 +12,7 @@ import {
   JOURNAL_ENTRY_KINDS,
   LINE_ROLES,
   MOVEMENT_KINDS,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 import type { ProblemCode } from './problem.js'
 
 export const DEFAULT_LIMIT = 100

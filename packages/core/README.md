@@ -13,16 +13,16 @@ double-entry journal, and checks its own books against the chain.
 > handled yet.
 
 ```sh
-npm install nostro
+npm install @nostro-labs/nostro
 ```
 
 ## Ingest an account
 
 ```ts
-import { HorizonClient, HorizonEffectsSource, HorizonFeesSource, MemoryStore, sync } from 'nostro'
+import { HorizonClient, HorizonEffectsSource, HorizonFeesSource, MemoryStore, sync } from '@nostro-labs/nostro'
 
 const client = new HorizonClient({ url: 'https://horizon-testnet.stellar.org' })
-const store = new MemoryStore() // or nostro-store-sqlite / nostro-store-postgres
+const store = new MemoryStore() // or @nostro-labs/store-sqlite / @nostro-labs/store-postgres
 for (const source of [
   new HorizonEffectsSource({ client, network: 'testnet' }), // every credit, debit, trade, pool move
   new HorizonFeesSource({ client, network: 'testnet' }), //    fees are not effects; read them too
@@ -37,7 +37,7 @@ covers, so a crash can never skip or double-apply a batch.
 ## Reconcile against what you are owed
 
 ```ts
-import { Money, NATIVE, reconcile } from 'nostro'
+import { Money, NATIVE, reconcile } from '@nostro-labs/nostro'
 
 await store.transaction((tx) =>
   tx.insertExpectation({ tenantId: 'acme', reference: 'INV-1042', account: 'G...', amount: Money.parse('25', NATIVE), muxedId: 1042n }),
@@ -55,7 +55,7 @@ log that `deliverWebhooks()` posts to a URL, signed (`verifyWebhook()` checks th
 ## Check the books
 
 ```ts
-import { doctor } from 'nostro'
+import { doctor } from '@nostro-labs/nostro'
 
 const report = await doctor({ store, tenantId: 'acme' }) // add `attest` to compare balances with the chain
 ```
@@ -77,12 +77,12 @@ another issuer is a different asset and never settles a real invoice.
 
 ## The rest of nostro
 
-- [`nostro-store-sqlite`](https://www.npmjs.com/package/nostro-store-sqlite) and
-  [`nostro-store-postgres`](https://www.npmjs.com/package/nostro-store-postgres): durable stores
+- [`@nostro-labs/store-sqlite`](https://www.npmjs.com/package/@nostro-labs/store-sqlite) and
+  [`@nostro-labs/store-postgres`](https://www.npmjs.com/package/@nostro-labs/store-postgres): durable stores
   that pass the same conformance suite as `MemoryStore`.
-- [`nostro-cli`](https://www.npmjs.com/package/nostro-cli): `nostro sync`, `reconcile`, `doctor`,
+- [`@nostro-labs/cli`](https://www.npmjs.com/package/@nostro-labs/cli): `nostro sync`, `reconcile`, `doctor`,
   `export`, `serve` and more.
-- [`nostro-server`](https://www.npmjs.com/package/nostro-server): the HTTP API, with an OpenAPI
+- [`@nostro-labs/server`](https://www.npmjs.com/package/@nostro-labs/server): the HTTP API, with an OpenAPI
   document.
 
 nostro has no runtime dependencies. It runs on Node 22 or later.

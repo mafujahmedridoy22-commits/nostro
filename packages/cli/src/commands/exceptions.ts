@@ -1,5 +1,5 @@
-import type { ExceptionCode, ExceptionStatus } from 'nostro'
-import { EXCEPTION_CODES, exceptionJson } from 'nostro'
+import type { ExceptionCode, ExceptionStatus } from '@nostro-labs/nostro'
+import { EXCEPTION_CODES, exceptionJson } from '@nostro-labs/nostro'
 import { COMMON, UsageError, flag, integer, positionals, string, tenant } from '../args.js'
 import type { Command } from '../command.js'
 import { COMMON_HELP, withStore } from '../command.js'

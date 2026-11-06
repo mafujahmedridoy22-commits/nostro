@@ -14,8 +14,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.base.json ./
 COPY packages ./packages
 RUN pnpm install --frozen-lockfile
 RUN pnpm -r build
-# Only nostro-cli and its production dependencies, workspace packages included.
-RUN pnpm --filter nostro-cli deploy --prod --legacy /out
+# Only @nostro-labs/cli and its production dependencies, workspace packages included.
+RUN pnpm --filter @nostro-labs/cli deploy --prod --legacy /out
 
 FROM node:22.19.0-bookworm-slim
 ENV NODE_ENV=production \

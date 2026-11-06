@@ -4,8 +4,8 @@
  * node-postgres returns `numeric` and `bigint` as strings, which is what we
  * want: they become `bigint` here and never pass through `number`.
  */
-import type { Allocation, ExceptionRecord, Expectation, JournalEntry, JournalLine, Json, Memo, Movement, OutboxEvent } from 'nostro'
-import { Money, parseAsset } from 'nostro'
+import type { Allocation, ExceptionRecord, Expectation, JournalEntry, JournalLine, Json, Memo, Movement, OutboxEvent } from '@nostro-labs/nostro'
+import { Money, parseAsset } from '@nostro-labs/nostro'
 
 export interface MovementRow {
   id: string

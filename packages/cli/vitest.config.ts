@@ -8,10 +8,10 @@ export default defineConfig({
     // Run against the sources so the CLI, the stores and the testkit share one copy of core.
     alias: {
       'nostro-testkit': source('../testkit/src/index.ts'),
-      'nostro-server': source('../server/src/index.ts'),
-      'nostro-store-postgres': source('../store-postgres/src/index.ts'),
-      'nostro-store-sqlite': source('../store-sqlite/src/index.ts'),
-      nostro: source('../core/src/index.ts'),
+      '@nostro-labs/server': source('../server/src/index.ts'),
+      '@nostro-labs/store-postgres': source('../store-postgres/src/index.ts'),
+      '@nostro-labs/store-sqlite': source('../store-sqlite/src/index.ts'),
+      '@nostro-labs/nostro': source('../core/src/index.ts'),
     },
   },
   test: {

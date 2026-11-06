@@ -1,7 +1,7 @@
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { verifyWebhook } from 'nostro'
+import { verifyWebhook } from '@nostro-labs/nostro'
 import { FakeHorizon } from 'nostro-testkit'
 import { main } from '../src/index.js'
 import { A, B, migrated, nostro } from './helpers.js'

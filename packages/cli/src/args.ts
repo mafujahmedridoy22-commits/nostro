@@ -5,7 +5,7 @@
  */
 import { parseArgs } from 'node:util'
 import type { ParseArgsConfig } from 'node:util'
-import { isAccountId } from 'nostro'
+import { isAccountId } from '@nostro-labs/nostro'
 import type { Io } from './io.js'
 
 /** The command line was wrong. Exit status 2. */

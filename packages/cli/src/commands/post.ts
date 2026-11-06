@@ -1,5 +1,5 @@
-import type { JournalEntryKind } from 'nostro'
-import { postJournal } from 'nostro'
+import type { JournalEntryKind } from '@nostro-labs/nostro'
+import { postJournal } from '@nostro-labs/nostro'
 import { COMMON, flag, positionals, tenant } from '../args.js'
 import type { Command } from '../command.js'
 import { COMMON_HELP, withStore } from '../command.js'

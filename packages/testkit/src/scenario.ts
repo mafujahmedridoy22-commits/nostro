@@ -10,8 +10,8 @@
  * bidirectional overrides, whatever fast-check can produce.
  */
 import fc from 'fast-check'
-import type { AssetId, Direction, Memo, MovementKind, NewMovement, Store } from 'nostro'
-import { ConstraintError, Money, NATIVE, ValidationError, applyMovement, asset, ignoreMovement, reconcile } from 'nostro'
+import type { AssetId, Direction, Memo, MovementKind, NewMovement, Store } from '@nostro-labs/nostro'
+import { ConstraintError, Money, NATIVE, ValidationError, applyMovement, asset, ignoreMovement, reconcile } from '@nostro-labs/nostro'
 
 export const SCENARIO_ACCOUNT = `G${'A'.repeat(55)}`
 const OTHER_ACCOUNT = `G${'C'.repeat(55)}`

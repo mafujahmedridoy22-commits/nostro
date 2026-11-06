@@ -63,7 +63,7 @@ An exception is a question for a person. These answer it, each in one transactio
 adjustment it causes, and every event it means:
 
 ```ts
-import { applyMovement, closeException, ignoreMovement } from 'nostro'
+import { applyMovement, closeException, ignoreMovement } from '@nostro-labs/nostro'
 
 // "That payment was for INV-1042." Applied by hand, it takes what is left of the movement and still
 // owing, unless you give an amount; several expectations split it.

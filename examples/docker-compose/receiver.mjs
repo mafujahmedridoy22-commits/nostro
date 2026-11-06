@@ -2,7 +2,7 @@
 // trusting anything in it, skip events already seen, then answer 2xx.
 // A real one would store the event before answering.
 import { createServer } from 'node:http'
-import { verifyWebhook } from 'nostro'
+import { verifyWebhook } from '@nostro-labs/nostro'
 
 const secret = process.env.NOSTRO_WEBHOOK_SECRET
 const seen = new Set()

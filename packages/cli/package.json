@@ -1,5 +1,5 @@
 {
-  "name": "nostro-cli",
+  "name": "@nostro-labs/cli",
   "version": "0.1.0",
   "description": "The nostro command line: ingest Stellar payments, reconcile them, check the books, export the journal, and serve the API.",
   "license": "Apache-2.0",
@@ -45,10 +45,10 @@
     "test": "vitest run --coverage"
   },
   "dependencies": {
-    "nostro": "workspace:^",
-    "nostro-server": "workspace:^",
-    "nostro-store-postgres": "workspace:^",
-    "nostro-store-sqlite": "workspace:^"
+    "@nostro-labs/nostro": "workspace:^",
+    "@nostro-labs/server": "workspace:^",
+    "@nostro-labs/store-postgres": "workspace:^",
+    "@nostro-labs/store-sqlite": "workspace:^"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.12",

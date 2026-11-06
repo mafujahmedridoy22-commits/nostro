@@ -1,5 +1,5 @@
-import { HorizonClient, HorizonEffectsSource, HorizonFeesSource } from 'nostro'
-import type { MigratableStore, MovementSource } from 'nostro'
+import { HorizonClient, HorizonEffectsSource, HorizonFeesSource } from '@nostro-labs/nostro'
+import type { MigratableStore, MovementSource } from '@nostro-labs/nostro'
 import type { Args, Network, OptionSpec } from './args.js'
 import { database } from './args.js'
 import type { Io } from './io.js'

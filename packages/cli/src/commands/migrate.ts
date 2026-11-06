@@ -23,7 +23,7 @@ ${COMMON_HELP}`,
         await write(
           io.stderr,
           `${opened.label} is at schema version ${before.current}, newer than this nostro understands ` +
-            `(${before.latest}). Upgrade nostro-cli; nothing was changed.\n`,
+            `(${before.latest}). Upgrade @nostro-labs/cli; nothing was changed.\n`,
         )
         return 1
       }

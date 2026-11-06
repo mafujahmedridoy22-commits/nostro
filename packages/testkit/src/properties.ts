@@ -5,8 +5,8 @@
  */
 import fc from 'fast-check'
 import { describe, expect, it } from 'vitest'
-import type { Money as MoneyType, Store } from 'nostro'
-import { MemoryStore, Money, doctor, journalCsv, postJournal, reconcile, signedAmount, sumAmounts } from 'nostro'
+import type { Money as MoneyType, Store } from '@nostro-labs/nostro'
+import { MemoryStore, Money, doctor, journalCsv, postJournal, reconcile, signedAmount, sumAmounts } from '@nostro-labs/nostro'
 import type { Delivered, Scenario } from './scenario.js'
 import { SCENARIO_ACCOUNT, SCENARIO_NOW, runScenario, scenario } from './scenario.js'
 

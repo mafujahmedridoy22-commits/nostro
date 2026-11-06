@@ -43,7 +43,7 @@ import type {
   SchemaVersion,
   StoreReader,
   StoreTx,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 import {
   ConstraintError,
   NotFoundError,
@@ -63,7 +63,7 @@ import {
   expectationChanged,
   movementDecided,
   sameFacts,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 import type {
   AllocationRow,
   EventRow,

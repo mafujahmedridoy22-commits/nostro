@@ -1,5 +1,5 @@
 {
-  "name": "nostro-server",
+  "name": "@nostro-labs/server",
   "version": "0.1.0",
   "description": "An HTTP API over a nostro store, with signed webhooks and an OpenAPI document.",
   "license": "Apache-2.0",
@@ -45,14 +45,14 @@
     "fastify": "^5.12.5"
   },
   "peerDependencies": {
-    "nostro": "workspace:^"
+    "@nostro-labs/nostro": "workspace:^"
   },
   "devDependencies": {
     "@apidevtools/swagger-parser": "13.1.0",
+    "@nostro-labs/nostro": "workspace:*",
     "@vitest/coverage-v8": "^2.1.8",
     "ajv": "8.20.0",
     "ajv-formats": "3.0.1",
-    "nostro": "workspace:*",
     "nostro-testkit": "workspace:*",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

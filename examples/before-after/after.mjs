@@ -1,5 +1,5 @@
-// The same job with nostro. MemoryStore stands in for nostro-store-postgres
-// or nostro-store-sqlite here, so that this runs with nothing installed.
+// The same job with nostro. MemoryStore stands in for @nostro-labs/store-postgres
+// or @nostro-labs/store-sqlite here, so that this runs with nothing installed.
 import {
   HorizonBalanceSource,
   HorizonClient,
@@ -12,7 +12,7 @@ import {
   doctor,
   reconcile,
   sync,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 
 export async function createNostro({ fetch, horizon, account, invoices }) {
   const tenantId = 'acme'

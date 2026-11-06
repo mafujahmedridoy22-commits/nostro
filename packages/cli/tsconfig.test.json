@@ -5,10 +5,10 @@
     "noEmit": true,
     // Typecheck against the sources the tests run against: one copy of core.
     "paths": {
-      "nostro": ["../core/src/index.ts"],
-      "nostro-server": ["../server/src/index.ts"],
-      "nostro-store-postgres": ["../store-postgres/src/index.ts"],
-      "nostro-store-sqlite": ["../store-sqlite/src/index.ts"],
+      "@nostro-labs/nostro": ["../core/src/index.ts"],
+      "@nostro-labs/server": ["../server/src/index.ts"],
+      "@nostro-labs/store-postgres": ["../store-postgres/src/index.ts"],
+      "@nostro-labs/store-sqlite": ["../store-sqlite/src/index.ts"],
       "nostro-testkit": ["../testkit/src/index.ts"]
     }
   },

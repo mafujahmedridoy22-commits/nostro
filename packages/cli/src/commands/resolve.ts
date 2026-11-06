@@ -1,5 +1,5 @@
-import type { ExceptionDecision } from 'nostro'
-import { ConstraintError, NotFoundError, PrecisionError, ValidationError, decideException, resolutionJson } from 'nostro'
+import type { ExceptionDecision } from '@nostro-labs/nostro'
+import { ConstraintError, NotFoundError, PrecisionError, ValidationError, decideException, resolutionJson } from '@nostro-labs/nostro'
 import type { Args } from '../args.js'
 import { COMMON, CliError, UsageError, flag, positionals, string, strings, tenant } from '../args.js'
 import type { Command } from '../command.js'

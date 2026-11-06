@@ -9,7 +9,7 @@
 import { Readable } from 'node:stream'
 import Fastify from 'fastify'
 import type { FastifyError, FastifyInstance, FastifyServerOptions } from 'fastify'
-import type { AssetId, Disposition, ExceptionCode, ExceptionDecision, ExceptionStatus, ExpectationStatus, Memo, NewExpectation, Store } from 'nostro'
+import type { AssetId, Disposition, ExceptionCode, ExceptionDecision, ExceptionStatus, ExpectationStatus, Memo, NewExpectation, Store } from '@nostro-labs/nostro'
 import {
   ConstraintError,
   InvalidAssetError,
@@ -28,7 +28,7 @@ import {
   outboxEventJson,
   parseAsset,
   resolutionJson,
-} from 'nostro'
+} from '@nostro-labs/nostro'
 import type { Authenticate } from './auth.js'
 import { buildOpenApi } from './openapi.js'
 import { HttpProblem } from './problem.js'

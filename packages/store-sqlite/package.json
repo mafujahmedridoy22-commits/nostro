@@ -1,5 +1,5 @@
 {
-  "name": "nostro-store-sqlite",
+  "name": "@nostro-labs/store-sqlite",
   "version": "0.1.0",
   "description": "SQLite store for nostro.",
   "license": "Apache-2.0",
@@ -44,11 +44,11 @@
     "better-sqlite3": "^12.11.1"
   },
   "peerDependencies": {
-    "nostro": "workspace:^"
+    "@nostro-labs/nostro": "workspace:^"
   },
   "devDependencies": {
+    "@nostro-labs/nostro": "workspace:*",
     "@vitest/coverage-v8": "^2.1.8",
-    "nostro": "workspace:*",
     "nostro-testkit": "workspace:*",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"

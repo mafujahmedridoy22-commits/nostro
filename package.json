@@ -14,8 +14,8 @@
     "format": "prettier --write ."
   },
   "devDependencies": {
+    "@nostro-labs/nostro": "workspace:*",
     "@types/node": "^22.10.0",
-    "nostro": "workspace:*",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },

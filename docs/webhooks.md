@@ -50,7 +50,7 @@ Each request carries `Nostro-Signature: t=<unix seconds>,v1=<hex>`: the HMAC-SHA
 the signature against the raw body before parsing it:
 
 ```ts
-import { verifyWebhook } from 'nostro'
+import { verifyWebhook } from '@nostro-labs/nostro'
 
 const ok = verifyWebhook({ secret: process.env.NOSTRO_WEBHOOK_SECRET!, header: req.headers['nostro-signature'], body: rawBody })
 if (!ok) return res.status(401).end()
@@ -63,7 +63,7 @@ event is safely stored on your side.
 ## Sending them
 
 ```ts
-import { deliverWebhooks } from 'nostro'
+import { deliverWebhooks } from '@nostro-labs/nostro'
 
 const report = await deliverWebhooks({ store, tenantId: 'acme', url: 'https://example.com/hooks/nostro', secret })
 // { delivered, position, failure: { eventId, reason } | null, contended }

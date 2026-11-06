@@ -1,6 +1,6 @@
 import { join } from 'node:path'
 import { describe, expect, it } from 'vitest'
-import { SqliteStore } from 'nostro-store-sqlite'
+import { SqliteStore } from '@nostro-labs/store-sqlite'
 import { FakeHorizon } from 'nostro-testkit'
 import { A, B, migrated, nostro } from './helpers.js'
 

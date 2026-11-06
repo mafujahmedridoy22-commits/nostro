@@ -12,7 +12,7 @@ Node ≥ 22 (Node 20 reached end-of-life on 2026-04-30), pnpm 10.16.
 
 ## Layering rule
 
-`packages/server` imports nostro only through its public entry point (`'nostro'`), never a path
+`packages/server` imports nostro only through its public entry point (`'@nostro-labs/nostro'`), never a path
 inside `packages/core`, and holds no reconciliation logic of its own. The service is a thin
 composition of the library; this rule is what stops the two execution modes from drifting apart, and
 a test in `packages/server` fails if it is broken.

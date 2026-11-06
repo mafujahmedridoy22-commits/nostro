@@ -1,5 +1,5 @@
-import type { ExpectationStatus } from 'nostro'
-import { isAccountId, sumAmounts } from 'nostro'
+import type { ExpectationStatus } from '@nostro-labs/nostro'
+import { isAccountId, sumAmounts } from '@nostro-labs/nostro'
 import { COMMON, UsageError, flag, integer, positionals, string, tenant } from '../args.js'
 import type { Command } from '../command.js'
 import { COMMON_HELP, withStore } from '../command.js'

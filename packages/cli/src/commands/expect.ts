@@ -1,5 +1,5 @@
-import type { AssetId, Memo, NewExpectation } from 'nostro'
-import { ConstraintError, Money, NATIVE, ValidationError, isAccountId, parseAsset } from 'nostro'
+import type { AssetId, Memo, NewExpectation } from '@nostro-labs/nostro'
+import { ConstraintError, Money, NATIVE, ValidationError, isAccountId, parseAsset } from '@nostro-labs/nostro'
 import type { Args } from '../args.js'
 import { COMMON, CliError, UsageError, date, flag, positionals, string, strings, tenant } from '../args.js'
 import type { Command } from '../command.js'

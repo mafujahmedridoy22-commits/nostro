@@ -4,8 +4,8 @@ import { randomUUID } from 'node:crypto'
 import Database from 'better-sqlite3'
 import pg from 'pg'
 import { describe, expect, it } from 'vitest'
-import { Money, NATIVE } from 'nostro'
-import { SqliteStore } from 'nostro-store-sqlite'
+import { Money, NATIVE } from '@nostro-labs/nostro'
+import { SqliteStore } from '@nostro-labs/store-sqlite'
 import { FakeHorizon } from 'nostro-testkit'
 import { A, B, migrated, nostro, workspace } from './helpers.js'
 
@@ -104,7 +104,7 @@ describe('nostro migrate', () => {
     setVersion(join(cwd, 'nostro.db'), 99)
     const { code, stderr } = await nostro(cwd, ['migrate'])
     expect(code).toBe(1)
-    expect(stderr).toMatch(/schema version 99, newer than this nostro understands \(4\)\. Upgrade nostro-cli; nothing was changed/)
+    expect(stderr).toMatch(/schema version 99, newer than this nostro understands \(4\)\. Upgrade @nostro-labs\/cli; nothing was changed/)
   })
 
   it('refuses an in-memory database, which would vanish when it exits', async () => {
@@ -136,7 +136,7 @@ describe('opening a database', () => {
     setVersion(file, 99)
     const ahead = await nostro(cwd, ['reconcile'])
     expect(ahead.code).toBe(1)
-    expect(ahead.stderr).toContain('newer than this nostro understands (4). Upgrade nostro-cli.')
+    expect(ahead.stderr).toContain('newer than this nostro understands (4). Upgrade @nostro-labs/cli.')
   })
 
   it('reports an unreachable PostgreSQL without printing its password', async () => {

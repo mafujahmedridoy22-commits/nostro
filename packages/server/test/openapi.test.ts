@@ -6,7 +6,7 @@ import SwaggerParser from '@apidevtools/swagger-parser'
 import { Ajv2020 } from 'ajv/dist/2020.js'
 import formats from 'ajv-formats'
 import { describe, expect, it } from 'vitest'
-import { HorizonEffectsSource, HorizonFeesSource, MemoryStore, Money, NATIVE, reconcile, sync } from 'nostro'
+import { HorizonEffectsSource, HorizonFeesSource, MemoryStore, Money, NATIVE, reconcile, sync } from '@nostro-labs/nostro'
 import { FakeHorizon } from 'nostro-testkit'
 import { apiKeys, buildOpenApi, createServer } from '../src/index.js'
 

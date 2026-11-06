@@ -6,8 +6,8 @@
  * leg can only ever net to zero or exactly its amount.
  */
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
-import type { JournalQuery, Movement, NewJournalEntry, NewJournalLine, Store } from 'nostro'
-import { Money, NotFoundError, ValidationError, asset } from 'nostro'
+import type { JournalQuery, Movement, NewJournalEntry, NewJournalLine, Store } from '@nostro-labs/nostro'
+import { Money, NotFoundError, ValidationError, asset } from '@nostro-labs/nostro'
 
 const T = 'tenant-a'
 const T2 = 'tenant-b'

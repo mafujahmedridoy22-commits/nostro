@@ -8,7 +8,7 @@
  */
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
-import type { MigratableStore } from 'nostro'
+import type { MigratableStore } from '@nostro-labs/nostro'
 import { CliError } from './args.js'
 import type { Io } from './io.js'
 
@@ -33,7 +33,7 @@ export function redact(url: string): string {
 
 export async function openStore(db: string, io: Io, options: { create: boolean }): Promise<OpenedStore> {
   if (POSTGRES.test(db)) {
-    const { PostgresStore } = await import('nostro-store-postgres')
+    const { PostgresStore } = await import('@nostro-labs/store-postgres')
     const schema = io.env.NOSTRO_PG_SCHEMA ?? 'nostro'
     return {
       store: new PostgresStore({ connectionString: db, schema }),
@@ -46,7 +46,7 @@ export async function openStore(db: string, io: Io, options: { create: boolean }
   if (!options.create && !existsSync(filename)) {
     throw new CliError(`No database at ${filename}. Create it with "nostro migrate".`)
   }
-  const { SqliteStore } = await import('nostro-store-sqlite')
+  const { SqliteStore } = await import('@nostro-labs/store-sqlite')
   return { store: new SqliteStore({ filename }), label: filename }
 }
 
@@ -59,6 +59,6 @@ export async function assertCurrent({ store, label }: OpenedStore): Promise<void
     throw new CliError(`${label} is at schema version ${current}; this nostro needs ${latest}. Run "nostro migrate".`)
   }
   throw new CliError(
-    `${label} is at schema version ${current}, newer than this nostro understands (${latest}). Upgrade nostro-cli.`,
+    `${label} is at schema version ${current}, newer than this nostro understands (${latest}). Upgrade @nostro-labs/cli.`,
   )
 }

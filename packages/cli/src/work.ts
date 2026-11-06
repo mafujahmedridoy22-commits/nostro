@@ -2,8 +2,8 @@
  * The two loops behind `nostro sync`, `nostro reconcile` and the worker in
  * `nostro serve`: catch every stream up, then decide everything pending.
  */
-import type { AccountSyncReport, ExceptionCode, MovementSource, Store } from 'nostro'
-import { reconcile, sync } from 'nostro'
+import type { AccountSyncReport, ExceptionCode, MovementSource, Store } from '@nostro-labs/nostro'
+import { reconcile, sync } from '@nostro-labs/nostro'
 
 export interface StreamProgress {
   readonly account: string

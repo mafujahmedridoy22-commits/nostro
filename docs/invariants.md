@@ -16,7 +16,7 @@ From the command line, `nostro doctor` checks I1 and I3, and `nostro doctor --at
 adds I2; it exits 1 if any invariant does not hold. From code:
 
 ```ts
-import { HorizonBalanceSource, HorizonClient, HorizonEffectsSource, HorizonFeesSource, doctor } from 'nostro'
+import { HorizonBalanceSource, HorizonClient, HorizonEffectsSource, HorizonFeesSource, doctor } from '@nostro-labs/nostro'
 
 // I1 and I3 only: reads every movement and journal entry, writes nothing.
 const report = await doctor({ store, tenantId: 'acme' })

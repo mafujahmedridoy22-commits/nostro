@@ -2,8 +2,8 @@ import { readFileSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
-import type { Store } from 'nostro'
-import { HorizonEffectsSource, HorizonFeesSource, JOURNAL_CSV_COLUMNS, MemoryStore, Money, NATIVE, reconcile, sync } from 'nostro'
+import type { Store } from '@nostro-labs/nostro'
+import { HorizonEffectsSource, HorizonFeesSource, JOURNAL_CSV_COLUMNS, MemoryStore, Money, NATIVE, reconcile, sync } from '@nostro-labs/nostro'
 import { FakeHorizon } from 'nostro-testkit'
 import { apiKeys, createServer } from '../src/index.js'
 
@@ -422,6 +422,6 @@ describe('layering', () => {
       .flatMap((f) => [...readFileSync(join(dir, f), 'utf8').matchAll(/from '([^']+)'/g)].map((m): [string, string] => [f, m[1]!]))
     const outside = imports.filter(([, spec]) => !spec.startsWith('./') && !spec.startsWith('node:') && spec !== 'fastify')
     expect(outside.length).toBeGreaterThan(0)
-    expect(outside.filter(([, spec]) => spec !== 'nostro')).toEqual([])
+    expect(outside.filter(([, spec]) => spec !== '@nostro-labs/nostro')).toEqual([])
   })
 })

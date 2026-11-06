@@ -7,12 +7,12 @@
 
 > **Status: `0.1.0`, early, and not yet on npm.** Implemented and tested: the `Money`/`Asset`
 > core, the record model (movements, expectations, allocations, exceptions), the transactional
-> `Store` contract with in-memory, SQLite (`nostro-store-sqlite`) and PostgreSQL
-> (`nostro-store-postgres`) stores that pass one shared conformance suite, and Horizon ingestion
+> `Store` contract with in-memory, SQLite (`@nostro-labs/store-sqlite`) and PostgreSQL
+> (`@nostro-labs/store-postgres`) stores that pass one shared conformance suite, and Horizon ingestion
 > (effects and fees) through a bounded `sync()` loop, matching through `reconcile()`, and a
 > double-entry journal posted as movements are decided, with CSV export, `doctor()`, which checks
-> all three invariants, a `nostro` command line over all of it (`nostro-cli`), and an HTTP API with
-> signed webhooks (`nostro-server`, `nostro serve`), with an OpenAPI document and a container image.
+> all three invariants, a `nostro` command line over all of it (`@nostro-labs/cli`), and an HTTP API with
+> signed webhooks (`@nostro-labs/server`, `nostro serve`), with an OpenAPI document and a container image.
 > Nothing is on npm yet — see [Roadmap](#roadmap). Nothing here is production-ready yet, and this
 > README marks what exists versus what doesn't.
 
@@ -51,7 +51,7 @@ nostro is the layer that gets this right once, so each product doesn't re-derive
 ## Ingesting an account (works today)
 
 ```ts
-import { HorizonClient, HorizonEffectsSource, HorizonFeesSource, MemoryStore, sync } from 'nostro'
+import { HorizonClient, HorizonEffectsSource, HorizonFeesSource, MemoryStore, sync } from '@nostro-labs/nostro'
 
 const client = new HorizonClient({ url: 'https://horizon-testnet.stellar.org' })
 const store = new MemoryStore()
@@ -77,7 +77,7 @@ and two places where the obvious reading of Horizon is wrong, are in
 ## Reconciling against what you are owed (works today)
 
 ```ts
-import { Money, NATIVE, reconcile } from 'nostro'
+import { Money, NATIVE, reconcile } from '@nostro-labs/nostro'
 
 // Record what you are owed. A muxed id gives this invoice its own M... address.
 await store.transaction((tx) =>
@@ -103,7 +103,7 @@ made, and what is not handled yet: [docs/matching.md](./docs/matching.md).
 ## Checking the books (works today)
 
 ```ts
-import { doctor } from 'nostro'
+import { doctor } from '@nostro-labs/nostro'
 
 const report = await doctor({ store, tenantId: 'acme' })
 if (!report.ok) console.table(report.findings) // e.g. I1 disposition_unsupported on movement 3f2c…

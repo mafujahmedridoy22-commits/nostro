@@ -8,8 +8,8 @@
 import { randomUUID } from 'node:crypto'
 import pg from 'pg'
 import { afterAll, describe, expect, it } from 'vitest'
-import type { StoreTx } from 'nostro'
-import { Money, NATIVE } from 'nostro'
+import type { StoreTx } from '@nostro-labs/nostro'
+import { Money, NATIVE } from '@nostro-labs/nostro'
 import { describeStoreConformance, describeStoreProperties } from 'nostro-testkit'
 import { PostgresStore } from '../src/index.js'
 

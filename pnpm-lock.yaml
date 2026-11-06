@@ -8,12 +8,12 @@ importers:
 
   .:
     devDependencies:
+      '@nostro-labs/nostro':
+        specifier: workspace:*
+        version: link:packages/core
       '@types/node':
         specifier: ^22.10.0
         version: 22.20.1
-      nostro:
-        specifier: workspace:*
-        version: link:packages/core
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
@@ -23,16 +23,16 @@ importers:
 
   packages/cli:
     dependencies:
-      nostro:
+      '@nostro-labs/nostro':
         specifier: workspace:^
         version: link:../core
-      nostro-server:
+      '@nostro-labs/server':
         specifier: workspace:^
         version: link:../server
-      nostro-store-postgres:
+      '@nostro-labs/store-postgres':
         specifier: workspace:^
         version: link:../store-postgres
-      nostro-store-sqlite:
+      '@nostro-labs/store-sqlite':
         specifier: workspace:^
         version: link:../store-sqlite
     devDependencies:
@@ -85,6 +85,9 @@ importers:
       '@apidevtools/swagger-parser':
         specifier: 13.1.0
         version: 13.1.0(openapi-types@12.1.3)
+      '@nostro-labs/nostro':
+        specifier: workspace:*
+        version: link:../core
       '@vitest/coverage-v8':
         specifier: ^2.1.8
         version: 2.1.9(vitest@2.1.9(@types/node@22.20.1))
@@ -94,9 +97,6 @@ importers:
       ajv-formats:
         specifier: 3.0.1
         version: 3.0.1(ajv@8.20.0)
-      nostro:
-        specifier: workspace:*
-        version: link:../core
       nostro-testkit:
         specifier: workspace:*
         version: link:../testkit
@@ -116,12 +116,12 @@ importers:
         specifier: ^8.13.1
         version: 8.23.1
     devDependencies:
+      '@nostro-labs/nostro':
+        specifier: workspace:*
+        version: link:../core
       '@vitest/coverage-v8':
         specifier: ^2.1.8
         version: 2.1.9(vitest@2.1.9(@types/node@22.20.1))
-      nostro:
-        specifier: workspace:*
-        version: link:../core
       nostro-testkit:
         specifier: workspace:*
         version: link:../testkit
@@ -141,12 +141,12 @@ importers:
         specifier: ^12.11.1
         version: 12.11.1
     devDependencies:
+      '@nostro-labs/nostro':
+        specifier: workspace:*
+        version: link:../core
       '@vitest/coverage-v8':
         specifier: ^2.1.8
         version: 2.1.9(vitest@2.1.9(@types/node@22.20.1))
-      nostro:
-        specifier: workspace:*
-        version: link:../core
       nostro-testkit:
         specifier: workspace:*
         version: link:../testkit
@@ -163,7 +163,7 @@ importers:
         specifier: 4.10.2
         version: 4.10.2
     devDependencies:
-      nostro:
+      '@nostro-labs/nostro':
         specifier: workspace:*
         version: link:../core
       typescript:

@@ -1,5 +1,5 @@
-import type { DoctorOptions, DoctorReport, Finding } from 'nostro'
-import { HorizonBalanceSource, doctor as runDoctor } from 'nostro'
+import type { DoctorOptions, DoctorReport, Finding } from '@nostro-labs/nostro'
+import { HorizonBalanceSource, doctor as runDoctor } from '@nostro-labs/nostro'
 import { COMMON, NETWORK, UsageError, accounts, flag, integer, network, positionals, strings, tenant } from '../args.js'
 import type { Command } from '../command.js'
 import { COMMON_HELP, NETWORK_HELP, horizonClient, movementSources, withStore } from '../command.js'

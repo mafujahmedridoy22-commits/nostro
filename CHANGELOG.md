@@ -9,7 +9,7 @@ The first usable release: ingest a Stellar account, reconcile it against what yo
 double-entry journal, check the books against the chain, and serve all of it over HTTP with signed
 webhooks.
 
-### `nostro`
+### `@nostro-labs/nostro`
 
 - **Money and assets.** Exact bigint amounts that are never floats and never rounded. Assets are
   identified as `CODE:ISSUER`, so a lookalike issuer is a different asset.
@@ -40,7 +40,7 @@ webhooks.
   the signature, with replay protection ([docs/webhooks.md](./docs/webhooks.md)).
 - **JSON.** A JSON form for every record: amounts as decimal strings, uint64s as strings.
 
-### `nostro-store-sqlite`, `nostro-store-postgres`
+### `@nostro-labs/store-sqlite`, `@nostro-labs/store-postgres`
 
 - Both pass the shared conformance suite and keep amounts exact beyond 64 bits.
 - Only `migrate()` changes the schema. `schemaVersion()` reports where a database is, without
@@ -48,7 +48,7 @@ webhooks.
 - PostgreSQL also checks journal balance itself, at commit. Writers serialise per tenant, so events
   commit in order.
 
-### `nostro-server`
+### `@nostro-labs/server`
 
 - An HTTP API: movements, expectations (list and create), exceptions (list and resolve), the
   journal (JSON and CSV), and the event log.
@@ -57,7 +57,7 @@ webhooks.
   refused, because a number may already have been rounded by the time it is parsed.
 - An OpenAPI 3.1 document at `/v1/openapi.json`, tested against real responses.
 
-### `nostro-cli`
+### `@nostro-labs/cli`
 
 - `nostro migrate`, `sync`, `expect`, `expectations`, `reconcile`, `exceptions`, `resolve`, `post`,
   `doctor`, `export` and `serve`. `serve` runs the API, syncs and reconciles on an interval, and delivers
