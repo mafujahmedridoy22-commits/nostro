@@ -251,6 +251,38 @@ describe('decide: not confident enough', () => {
   })
 })
 
+describe('decide: known payers', () => {
+  it('raises a known payer alone as ambiguous, with the payer as evidence', () => {
+    const e = expectation({ payers: [PAYER] })
+    const d = exception(decide(movement({ amount: usdc('3') }), [candidate(e)]))
+    expect(d.code).toBe('AMBIGUOUS_MATCH')
+    expect(d.detail).toMatch(/below the 0.7 threshold/)
+    const signals = (d.evidence as { candidates: { signals: { strategy: string }[] }[] }).candidates[0]!.signals
+    expect(signals.map((s) => s.strategy)).toContain('known_payer')
+  })
+
+  it('settles a known payer whose amount is uniquely owed', () => {
+    const e = expectation({ payers: [PAYER] })
+    const d = allocation(decide(movement(), [candidate(e)]))
+    expect(d.expectationId).toBe(e.id)
+    expect(d.score).toBeCloseTo(0.76)
+    expect(d.strategy).toBe('exact_amount')
+  })
+
+  it('stays ambiguous when another candidate is owed the same amount', () => {
+    const known = expectation({ payers: [PAYER] })
+    const rival = expectation()
+    const d = exception(decide(movement(), [candidate(known), candidate(rival)]))
+    expect(d.code).toBe('AMBIGUOUS_MATCH')
+  })
+
+  it('does not fire on a movement with no counterparty', () => {
+    const e = expectation({ payers: [PAYER] })
+    const d = exception(decide(movement({ counterparty: null, amount: usdc('3') }), [candidate(e)]))
+    expect(d.code).toBe('MEMO_MISSING')
+  })
+})
+
 describe('decide: nothing to match', () => {
   it('ignores fees, which are posted to expense', () => {
     expect(decide(movement({ kind: 'fee', direction: 'debit' }), [candidate(expectation())])).toEqual({
