@@ -3,7 +3,7 @@
 All five packages share a version. This project follows [Semantic Versioning](https://semver.org/);
 before 1.0, a minor version may change the API.
 
-## 0.1.0 (unreleased)
+## 0.1.0 (2026-11-06)
 
 The first usable release: ingest a Stellar account, reconcile it against what you are owed, keep a
 double-entry journal, check the books against the chain, and serve all of it over HTTP with signed
@@ -64,6 +64,11 @@ webhooks.
   webhooks. Exit codes suit cron and CI.
 - A container image (`Dockerfile`) and a Docker Compose example with PostgreSQL and a webhook
   receiver.
+
+### Examples
+
+- `examples/before-after` runs a careful hand-rolled watcher and nostro over the same payments and
+  scores both.
 
 ### Not handled yet
 
