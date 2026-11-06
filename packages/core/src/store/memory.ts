@@ -56,6 +56,7 @@ import {
   checkDisposition,
   checkJournalEntry,
   checkResolution,
+  storedMemo,
   sameFacts,
 } from './rules.js'
 import { ConstraintError, NotFoundError, TransactionClosedError } from './store.js'
@@ -328,7 +329,7 @@ class MemoryTx extends MemoryReader implements StoreTx {
         amount: n.amount,
         counterparty: n.counterparty ?? null,
         muxedId: n.muxedId ?? null,
-        memo: n.memo == null ? null : Object.freeze({ ...n.memo }),
+        memo: n.memo == null ? null : Object.freeze(storedMemo(n.memo)),
         ledger: n.ledger,
         txHash: n.txHash ?? null,
         operationId: n.operationId ?? null,
@@ -409,7 +410,7 @@ class MemoryTx extends MemoryReader implements StoreTx {
       direction: n.direction ?? 'credit',
       amount: n.amount,
       muxedId: n.muxedId ?? null,
-      memo: n.memo == null ? null : Object.freeze({ ...n.memo }),
+      memo: n.memo == null ? null : Object.freeze(storedMemo(n.memo)),
       payers: Object.freeze([...(n.payers ?? [])]),
       dueAt: n.dueAt == null ? null : copyDate(n.dueAt),
       expiresAt: n.expiresAt == null ? null : copyDate(n.expiresAt),

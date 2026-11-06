@@ -30,9 +30,20 @@ export function sumAmounts(amounts: readonly Money[], like: Money): Money {
   return amounts.reduce((acc, m) => acc.add(m), Money.zero(like.asset, like.decimals))
 }
 
+/**
+ * A memo as every store keeps it. Half a character cannot be stored as text,
+ * so it becomes U+FFFD, as Horizon does with bytes it cannot decode. It is not
+ * refused: a memo is a fact from the chain, and refusing one would stop that
+ * account's ingest for good.
+ */
+export function storedMemo(memo: Memo): Memo {
+  return memo.type === 'text' ? { type: 'text', value: memo.value.replace(/\p{Cs}/gu, '\ufffd') } : memo
+}
+
 function sameMemo(a: Memo | null, b: Memo | null): boolean {
   if (a === null || b === null) return a === b
-  return a.type === b.type && a.value === b.value
+  const stored = storedMemo(b)
+  return a.type === stored.type && a.value === stored.value
 }
 
 /** Whether a re-delivered movement states the same facts as the recorded one. */

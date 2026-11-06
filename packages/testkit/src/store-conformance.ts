@@ -683,6 +683,16 @@ export function describeStoreConformance(name: string, makeStore: () => Store | 
       expect((await store.getMovement(T, kept.id))!.memo).toEqual({ type: 'text', value: 'a\0b' })
     })
 
+    it('keeps half a character in a memo as U+FFFD, and a re-delivery of it is no conflict', async () => {
+      const m = movement({ memo: { type: 'text', value: 'a\ud800b' } })
+      const first = await store.transaction((tx) => tx.insertMovements([m]))
+      expect(first.inserted[0]!.memo).toEqual({ type: 'text', value: 'a\ufffdb' })
+      expect((await store.getMovement(T, first.inserted[0]!.id))!.memo).toEqual({ type: 'text', value: 'a\ufffdb' })
+      const again = await store.transaction((tx) => tx.insertMovements([m]))
+      expect(again.conflicts).toEqual([])
+      expect(again.duplicates).toHaveLength(1)
+    })
+
     it('validates write arguments that are not records', async () => {
       const e = await expect10()
       const m = await record()
