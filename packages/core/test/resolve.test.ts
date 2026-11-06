@@ -9,9 +9,11 @@ import {
   applyMovement,
   asset,
   closeException,
+  decideException,
   doctor,
   ignoreMovement,
   reconcile,
+  resolutionJson,
 } from '../src/index.js'
 
 const T = 'acme'
@@ -294,5 +296,64 @@ describe('closeException', () => {
     const { store } = books()
     await expect(closeException({ store, tenantId: T, exceptionId: 'nope', status: 'resolved', note: 'n' })).rejects.toBeInstanceOf(NotFoundError)
     await expect(closeException({ store, tenantId: T, exceptionId: 'nope', status: 'resolved', note: '' })).rejects.toBeInstanceOf(ValidationError)
+  })
+})
+
+describe('decideException', () => {
+  const exceptionOf = async (store: MemoryStore, movementId: string) => (await store.listExceptions({ tenantId: T, movementId }))[0]!
+
+  it('applies by reference, with an amount as a string, and reports it all as JSON', async () => {
+    const { store, owe, paid, healthy } = books()
+    await owe('INV-1', xlm('7'))
+    const m = await paid(xlm('10'))
+    const x = await exceptionOf(store, m.id)
+    const report = await decideException({
+      store,
+      tenantId: T,
+      exceptionId: x.id,
+      decision: { action: 'apply', allocations: [{ reference: 'INV-1', amount: '2.5' }], note: 'part of it' },
+    })
+    const json = JSON.parse(JSON.stringify(resolutionJson(report)))
+    expect(json.movement).toMatchObject({ id: m.id, disposition: 'partial' })
+    expect(json.allocations).toEqual([expect.objectContaining({ amount: '2.5000000', asset: 'native', strategy: 'manual' })])
+    expect(json.closed).toEqual([expect.objectContaining({ id: x.id, status: 'resolved', resolutionNote: 'part of it' })])
+    expect(json.opened).toMatchObject({ code: 'PARTIAL_UNRESOLVED', amount: '7.5000000' })
+    expect(json.journalEntry).toMatchObject({ kind: 'reclass' })
+    await healthy()
+  })
+
+  it('ignores, and closes', async () => {
+    const { store, owe, paid, healthy } = books()
+    const m = await paid(xlm('10'))
+    const report = await decideException({ store, tenantId: T, exceptionId: (await exceptionOf(store, m.id)).id, decision: { action: 'ignore', note: 'top-up' } })
+    expect(report.movement).toMatchObject({ disposition: 'ignored', ignoredReason: 'top-up' })
+
+    const invoice = await owe('INV-1', xlm('1'))
+    const about = await store.transaction((tx) => tx.openException({ tenantId: T, code: 'MEMO_MALFORMED', expectationId: invoice.id, detail: 'x' }))
+    const closed = await decideException({ store, tenantId: T, exceptionId: about.id, decision: { action: 'close', status: 'dismissed', note: 'seen' } })
+    expect(closed.movement).toBeNull()
+    expect(closed.closed[0]).toMatchObject({ status: 'dismissed' })
+    expect(resolutionJson(closed)).toMatchObject({ movement: null, opened: null, journalEntry: null })
+
+    const late = await store.transaction((tx) => tx.openException({ tenantId: T, code: 'SOURCE_GAP_DETECTED', movementId: m.id, detail: 'x' }))
+    const onDecided = await decideException({ store, tenantId: T, exceptionId: late.id, decision: { action: 'close', note: 'checked' } })
+    expect(onDecided.movement).toMatchObject({ id: m.id })
+    expect(onDecided.closed[0]).toMatchObject({ status: 'resolved' })
+    await healthy()
+  })
+
+  it('refuses what it cannot do, by name', async () => {
+    const { store, owe, paid } = books()
+    const invoice = await owe('INV-1', xlm('1'))
+    const about = await store.transaction((tx) => tx.openException({ tenantId: T, code: 'MEMO_MALFORMED', expectationId: invoice.id, detail: 'x' }))
+    const decide = (exceptionId: string, decision: Parameters<typeof decideException>[0]['decision']) => decideException({ store, tenantId: T, exceptionId, decision })
+    await expect(decide('nope', { action: 'ignore', note: 'n' })).rejects.toMatchObject({ entity: 'exception' })
+    await expect(decide(about.id, { action: 'ignore', note: 'n' })).rejects.toBeInstanceOf(ValidationError)
+    await expect(decide(about.id, { action: 'apply', allocations: [{ reference: 'INV-1' }], note: 'n' })).rejects.toBeInstanceOf(ValidationError)
+    const m = await paid(xlm('5'))
+    const x = (await store.listExceptions({ tenantId: T, movementId: m.id }))[0]!
+    await expect(decide(x.id, { action: 'apply', allocations: [{ reference: 'INV-404' }], note: 'n' })).rejects.toMatchObject({ entity: 'expectation' })
+    await expect(decide(x.id, { action: 'apply', allocations: [{ reference: 'INV-1', amount: '1.00000001' }], note: 'n' })).rejects.toMatchObject({ name: 'PrecisionError' })
+    await expect(decide(x.id, { action: 'close', note: 'n' })).rejects.toMatchObject(constraint('disposition_unsupported'))
   })
 })

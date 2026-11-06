@@ -114,6 +114,17 @@ describe('the OpenAPI document', () => {
     })
     expect(created.statusCode).toBe(201)
 
+    const openExceptions = (await call('GET', '/v1/exceptions?status=open', '/v1/exceptions')).json().data as { id: string }[]
+    const path = '/v1/exceptions/{id}/resolve'
+    const debit = openExceptions[0]!.id
+    expect((await call('POST', `/v1/exceptions/nope/resolve`, path, { action: 'ignore', note: 'n' })).statusCode).toBe(404)
+    expect((await call('POST', `/v1/exceptions/${debit}/resolve`, path, { action: 'apply', allocations: [{ reference: 'nope' }], note: 'n' })).statusCode).toBe(422)
+    expect((await call('POST', `/v1/exceptions/${debit}/resolve`, path, { action: 'close', note: 'n' })).statusCode).toBe(409)
+    expect((await call('POST', `/v1/exceptions/${debit}/resolve`, path, { action: 'pay' })).statusCode).toBe(400)
+    const ignored = await call('POST', `/v1/exceptions/${debit}/resolve`, path, { action: 'ignore', note: 'paid a supplier' })
+    expect(ignored.statusCode).toBe(200)
+    expect(ignored.json().journalEntry.kind).toBe('reclass')
+
     // And every documented error, in the shape documented.
     expect((await call('GET', '/v1/movements', '/v1/movements', undefined, false)).statusCode).toBe(401)
     expect((await call('GET', '/v1/movements?limit=0', '/v1/movements')).statusCode).toBe(400)

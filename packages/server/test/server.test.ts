@@ -257,6 +257,93 @@ describe('exceptions and the journal', () => {
   })
 })
 
+describe('resolving exceptions', () => {
+  /** A's 5 XLM debit raised UNEXPECTED_DEBIT; give the store a credit nothing matched, too. */
+  async function unmatched() {
+    const store = await seeded()
+    const app = server(store)
+    await store.transaction((tx) =>
+      tx.insertMovements([
+        { tenantId: 'acme', network: 'testnet', source: 'x', externalId: 'y', account: A, direction: 'credit', kind: 'transfer', amount: Money.parse('7', NATIVE), ledger: 50, occurredAt: new Date() },
+      ]),
+    )
+    await reconcile({ store, tenantId: 'acme' })
+    const list = (await app.inject({ url: '/v1/exceptions?status=open', headers: auth() })).json().data as { id: string; code: string }[]
+    const x = list.find((e) => e.code !== 'UNEXPECTED_DEBIT')!
+    const resolve = (id: string, payload: object, key = ACME_KEY) =>
+      app.inject({ method: 'POST', url: `/v1/exceptions/${id}/resolve`, headers: auth(key), payload })
+    const owe = (reference: string, amount: string) =>
+      app.inject({ method: 'POST', url: '/v1/expectations', headers: auth(), payload: { reference, account: A, amount } })
+    return { store, app, id: x.id, resolve, owe }
+  }
+
+  it('applies a payment to an invoice by its reference, and the books follow', async () => {
+    const { app, id, resolve, owe } = await unmatched()
+    await owe('INV-7', '7')
+    const res = await resolve(id, { action: 'apply', allocations: [{ reference: 'INV-7' }], note: 'customer called' })
+    expect(res.statusCode).toBe(200)
+    const body = res.json()
+    expect(body.movement.disposition).toBe('allocated')
+    expect(body.closed).toEqual([expect.objectContaining({ id, status: 'resolved', resolutionNote: 'customer called' })])
+    expect(body.journalEntry.kind).toBe('reclass')
+    const settled = (await app.inject({ url: '/v1/expectations?status=settled', headers: auth() })).json().data
+    expect(settled.map((e: { reference: string }) => e.reference)).toContain('INV-7')
+    const types = (await app.inject({ url: '/v1/events', headers: auth() })).json().data.map((e: { type: string }) => e.type)
+    expect(types.slice(-3)).toEqual(['expectation.settled', 'exception.resolved', 'movement.decided'])
+    // It has been decided now, so deciding it again is refused.
+    expect((await resolve(id, { action: 'ignore', note: 'n' })).json()).toMatchObject({ status: 409, code: 'resolution_refused' })
+  })
+
+  it('takes part of a payment, with an amount, leaving the rest open', async () => {
+    const { id, resolve, owe } = await unmatched()
+    await owe('INV-7', '7')
+    const res = await resolve(id, { action: 'apply', allocations: [{ reference: 'INV-7', amount: '2.5' }], note: 'n' })
+    expect(res.json()).toMatchObject({ movement: { disposition: 'partial' }, opened: { code: 'PARTIAL_UNRESOLVED', amount: '4.5000000' } })
+  })
+
+  it('ignores a movement with a reason, and closes what no movement depends on', async () => {
+    const { store, id, resolve } = await unmatched()
+    expect((await resolve(id, { action: 'ignore', note: 'our own top-up' })).json()).toMatchObject({
+      movement: { disposition: 'ignored', ignoredReason: 'our own top-up' },
+      closed: [{ status: 'dismissed' }],
+    })
+    const about = await store.transaction((tx) => tx.openException({ tenantId: 'acme', code: 'MEMO_MALFORMED', account: A, detail: 'x' }))
+    expect((await resolve(about.id, { action: 'apply', allocations: [{ reference: 'x' }], note: 'n' })).json()).toMatchObject({ status: 422, code: 'invalid_resolution' })
+    expect((await resolve(about.id, { action: 'close', status: 'dismissed', note: 'seen' })).json()).toMatchObject({ movement: null, closed: [{ status: 'dismissed' }] })
+  })
+
+  it('answers each kind of refusal differently, and never touches another tenant', async () => {
+    const { id, resolve, owe } = await unmatched()
+    const refused = async (payload: object, status: number, code: string, target = id) => {
+      const res = await resolve(target, payload)
+      expect(res.statusCode, JSON.stringify(payload)).toBe(status)
+      expect(res.json()).toMatchObject({ code })
+    }
+    await refused({ action: 'ignore', note: 'n' }, 404, 'not_found', 'nope')
+    await refused({ action: 'apply', allocations: [{ reference: 'INV-404' }], note: 'n' }, 422, 'invalid_resolution')
+    await owe('INV-7', '7')
+    await refused({ action: 'apply', allocations: [{ reference: 'INV-7', amount: '1.00000001' }], note: 'n' }, 422, 'invalid_resolution')
+    await refused({ action: 'apply', allocations: [{ reference: 'INV-7', amount: '8' }], note: 'n' }, 409, 'resolution_refused')
+    await refused({ action: 'close', note: 'n' }, 409, 'resolution_refused')
+    await refused({ action: 'ignore', note: 'a\u0000b' }, 422, 'invalid_resolution')
+    // Malformed, rather than refused.
+    for (const payload of [
+      {},
+      { action: 'pay', note: 'n' },
+      { action: 'ignore' },
+      { action: 'ignore', note: '' },
+      { action: 'apply', note: 'n' },
+      { action: 'apply', allocations: [], note: 'n' },
+      { action: 'apply', allocations: [{ reference: 'INV-7', amount: 1 }], note: 'n' },
+      { action: 'ignore', note: 'n', colour: 'red' },
+    ]) {
+      await refused(payload, 400, 'invalid_request')
+    }
+    expect((await resolve(id, { action: 'ignore', note: 'n' }, OTHER_KEY)).statusCode).toBe(404)
+    expect((await resolve(id, { action: 'ignore', note: 'still open' })).statusCode).toBe(200)
+  })
+})
+
 describe('events', () => {
   it('pages the event log, the same events webhooks deliver', async () => {
     const app = server(await seeded())

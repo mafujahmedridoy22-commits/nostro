@@ -9,15 +9,17 @@
 import { Readable } from 'node:stream'
 import Fastify from 'fastify'
 import type { FastifyError, FastifyInstance, FastifyServerOptions } from 'fastify'
-import type { AssetId, Disposition, ExceptionCode, ExceptionStatus, ExpectationStatus, Memo, NewExpectation, Store } from 'nostro'
+import type { AssetId, Disposition, ExceptionCode, ExceptionDecision, ExceptionStatus, ExpectationStatus, Memo, NewExpectation, Store } from 'nostro'
 import {
   ConstraintError,
   InvalidAssetError,
   Money,
   NATIVE,
+  NotFoundError,
   PrecisionError,
   ValidationError,
   allocationJson,
+  decideException,
   exceptionJson,
   expectationJson,
   journalCsvRows,
@@ -25,11 +27,12 @@ import {
   movementJson,
   outboxEventJson,
   parseAsset,
+  resolutionJson,
 } from 'nostro'
 import type { Authenticate } from './auth.js'
 import { buildOpenApi } from './openapi.js'
 import { HttpProblem } from './problem.js'
-import { UINT64, expectationBody, idParams, query } from './schemas.js'
+import { UINT64, expectationBody, idParams, query, resolveBody } from './schemas.js'
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -263,6 +266,24 @@ export function createServer(options: ServerOptions): FastifyInstance {
 
       v1.get<{ Querystring: Paging }>('/events', { schema: { querystring: query.events } }, async ({ tenantId, query: q }) =>
         page(await store.listEvents({ tenantId, limit: q.limit, ...after(q) }), q.limit, outboxEventJson),
+      )
+
+      v1.post<{ Params: { id: string }; Body: ExceptionDecision }>(
+        '/exceptions/:id/resolve',
+        { schema: { params: idParams, body: resolveBody }, preValidation: async (request) => onlyStrings(request.body, '') },
+        async ({ tenantId, params, body }) => {
+          try {
+            return resolutionJson(await decideException({ store, tenantId, exceptionId: params.id, decision: body }))
+          } catch (err) {
+            if (err instanceof NotFoundError) {
+              if (err.entity === 'exception') throw new HttpProblem(404, 'not_found', `No exception ${params.id}.`)
+              throw new HttpProblem(422, 'invalid_resolution', `No ${err.entity} ${err.id}.`)
+            }
+            if (err instanceof ValidationError || err instanceof PrecisionError) throw new HttpProblem(422, 'invalid_resolution', err.message)
+            if (err instanceof ConstraintError) throw new HttpProblem(409, 'resolution_refused', err.message)
+            throw err
+          }
+        },
       )
 
       const dates = (q: { from?: string; to?: string }) => ({

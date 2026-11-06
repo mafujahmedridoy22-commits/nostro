@@ -7,6 +7,8 @@ export type ProblemCode =
   | 'unauthorized'
   | 'invalid_request'
   | 'invalid_expectation'
+  | 'invalid_resolution'
+  | 'resolution_refused'
   | 'not_found'
   | 'reference_taken'
   | 'internal'

@@ -86,6 +86,50 @@ export const expectationBody = {
   },
 } as const
 
+export const resolveBody = {
+  oneOf: [
+    {
+      type: 'object',
+      additionalProperties: false,
+      required: ['action', 'allocations', 'note'],
+      properties: {
+        action: { const: 'apply' },
+        allocations: {
+          type: 'array',
+          minItems: 1,
+          maxItems: 100,
+          items: {
+            type: 'object',
+            additionalProperties: false,
+            required: ['reference'],
+            properties: {
+              reference: { type: 'string', minLength: 1, maxLength: 256 },
+              amount: { type: 'string', pattern: AMOUNT, description: 'Without one: what is left of the movement and still owing.' },
+            },
+          },
+        },
+        note: { type: 'string', minLength: 1, maxLength: 2000 },
+      },
+    },
+    {
+      type: 'object',
+      additionalProperties: false,
+      required: ['action', 'note'],
+      properties: { action: { const: 'ignore' }, note: { type: 'string', minLength: 1, maxLength: 2000 } },
+    },
+    {
+      type: 'object',
+      additionalProperties: false,
+      required: ['action', 'note'],
+      properties: {
+        action: { const: 'close' },
+        status: { enum: ['resolved', 'dismissed'], description: 'Default `resolved`.' },
+        note: { type: 'string', minLength: 1, maxLength: 2000 },
+      },
+    },
+  ],
+} as const
+
 // Responses.
 
 const ref = (name: string) => ({ $ref: `#/components/schemas/${name}` })
@@ -105,6 +149,8 @@ const PROBLEM_CODES: readonly ProblemCode[] = [
   'unauthorized',
   'invalid_request',
   'invalid_expectation',
+  'invalid_resolution',
+  'resolution_refused',
   'not_found',
   'reference_taken',
   'internal',
@@ -218,6 +264,13 @@ export const components = {
   ExpectationDetail: record({
     expectation: ref('Expectation'),
     allocations: { type: 'array', items: ref('Allocation') },
+  }),
+  Resolution: record({
+    movement: nullable(ref('Movement')),
+    allocations: { type: 'array', items: ref('Allocation') },
+    closed: { type: 'array', items: ref('Exception') },
+    opened: nullable(ref('Exception')),
+    journalEntry: nullable(ref('JournalEntry')),
   }),
   Problem: record({
     type: { const: 'about:blank' },

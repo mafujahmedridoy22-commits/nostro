@@ -22,13 +22,14 @@
 import type { PostOptions } from '../journal/index.js'
 import { postMovement } from '../journal/index.js'
 import type { Allocation, ExceptionCode, ExceptionRecord, JournalEntry, Movement } from '../model/index.js'
-import { ValidationError } from '../model/index.js'
-import type { Money } from '../money/index.js'
+import { ValidationError, allocationJson, exceptionJson, journalEntryJson, movementJson } from '../model/index.js'
+import { Money } from '../money/index.js'
 import type { Store, StoreTx } from '../store/index.js'
 import { ConstraintError, NotFoundError, sumAmounts } from '../store/index.js'
 
 export interface ResolutionReport {
-  readonly movement: Movement
+  /** The movement as it now is; `null` for an exception about no movement. */
+  readonly movement: Movement | null
   /** What this resolution allocated. */
   readonly allocations: readonly Allocation[]
   /** Exceptions this resolution closed. */
@@ -37,6 +38,11 @@ export interface ResolutionReport {
   readonly opened: ExceptionRecord | null
   /** The adjustment posted, if the books needed one. */
   readonly journalEntry: JournalEntry | null
+}
+
+/** A resolution that acted on a movement, which it always has when it was asked to. */
+export interface MovementResolution extends ResolutionReport {
+  readonly movement: Movement
 }
 
 interface ResolveOptions extends PostOptions {
@@ -74,7 +80,7 @@ async function undecided(tx: StoreTx, tenantId: string, id: string): Promise<Mov
 /** Codes under which what is left is owed back to a known payer, as opposed to unexplained. */
 const OWED_BACK: readonly ExceptionCode[] = ['OVERPAYMENT', 'DUPLICATE_PAYMENT']
 
-export async function applyMovement(options: ApplyOptions): Promise<ResolutionReport> {
+export async function applyMovement(options: ApplyOptions): Promise<MovementResolution> {
   const { store, tenantId, movementId, note } = options
   required('note', note)
   if (options.allocations.length === 0) throw new ValidationError('allocations', 'name at least one expectation')
@@ -127,7 +133,7 @@ export async function applyMovement(options: ApplyOptions): Promise<ResolutionRe
   })
 }
 
-export async function ignoreMovement(options: IgnoreOptions): Promise<ResolutionReport> {
+export async function ignoreMovement(options: IgnoreOptions): Promise<MovementResolution> {
   const { store, tenantId, movementId, reason } = options
   required('reason', reason)
   return store.transaction(async (tx) => {
@@ -174,4 +180,61 @@ export async function closeException(options: CloseOptions): Promise<ExceptionRe
     }
     return tx.resolveException(tenantId, exceptionId, { status, note })
   })
+}
+
+/** A person's decision about an exception, in the terms they know it by. */
+export type ExceptionDecision =
+  /** The exception's movement was for these expectations, by reference; amounts are decimal strings. */
+  | { readonly action: 'apply'; readonly allocations: readonly { readonly reference: string; readonly amount?: string }[]; readonly note: string }
+  /** The exception's movement is not something to reconcile. */
+  | { readonly action: 'ignore'; readonly note: string }
+  /** The exception itself is dealt with; refused if an undecided movement depends on it. */
+  | { readonly action: 'close'; readonly status?: 'resolved' | 'dismissed'; readonly note: string }
+
+export interface DecideExceptionOptions extends PostOptions {
+  readonly store: Store
+  readonly tenantId: string
+  readonly exceptionId: string
+  readonly decision: ExceptionDecision
+}
+
+/** Act on an exception: what the HTTP API and the command line both call. */
+export async function decideException(options: DecideExceptionOptions): Promise<ResolutionReport> {
+  const { store, tenantId, exceptionId, decision } = options
+  const exception = await store.getException(tenantId, exceptionId)
+  if (exception === null) throw new NotFoundError('exception', exceptionId)
+
+  if (decision.action === 'close') {
+    const closed = await closeException({ store, tenantId, exceptionId, status: decision.status ?? 'resolved', note: decision.note })
+    const movement = closed.movementId === null ? null : await store.getMovement(tenantId, closed.movementId)
+    return { movement, allocations: [], closed: [closed], opened: null, journalEntry: null }
+  }
+
+  const movementId = exception.movementId
+  if (movementId === null) throw new ValidationError('action', 'this exception is about no movement: close it instead')
+  const shared = { store, tenantId, movementId, ...(options.chart === undefined ? {} : { chart: options.chart }) }
+  if (decision.action === 'ignore') return ignoreMovement({ ...shared, reason: decision.note })
+
+  const movement = await store.getMovement(tenantId, movementId)
+  const allocations = []
+  for (const { reference, amount } of decision.allocations) {
+    const expectation = await store.getExpectationByReference(tenantId, reference)
+    if (expectation === null) throw new NotFoundError('expectation', reference)
+    allocations.push({
+      expectationId: expectation.id,
+      ...(amount === undefined ? {} : { amount: Money.parse(amount, movement!.amount.asset, movement!.amount.decimals) }),
+    })
+  }
+  return applyMovement({ ...shared, allocations, note: decision.note })
+}
+
+/** A resolution as plain JSON, like every other record. */
+export function resolutionJson(report: ResolutionReport) {
+  return {
+    movement: report.movement === null ? null : movementJson(report.movement),
+    allocations: report.allocations.map(allocationJson),
+    closed: report.closed.map(exceptionJson),
+    opened: report.opened === null ? null : exceptionJson(report.opened),
+    journalEntry: report.journalEntry === null ? null : journalEntryJson(report.journalEntry),
+  }
 }

@@ -28,6 +28,7 @@ await app.listen({ port: 8080 })
 | `GET /v1/expectations/{id}` | the expectation and its allocations |
 | `POST /v1/expectations` | record one; `201` with `Location`, `409` if the reference is taken |
 | `GET /v1/exceptions` | `?status=`, `?code=` |
+| `POST /v1/exceptions/{id}/resolve` | decide it: `{ "action": "apply", "allocations": [{ "reference": "INV-1" }], "note": "..." }`, `{ "action": "ignore", "note": "..." }` or `{ "action": "close", "note": "..." }`; see [When a person decides](../../docs/matching.md#when-a-person-decides) |
 | `GET /v1/journal` | `?from=`, `?to=` (ISO 8601, effective dates) |
 | `GET /v1/journal.csv` | the journal as CSV, streamed |
 | `GET /v1/events` | the event log ([docs/webhooks.md](../../docs/webhooks.md)), for clients that would rather poll than receive webhooks |
@@ -42,7 +43,8 @@ await app.listen({ port: 8080 })
   refused, because by the time it is parsed it may already have been rounded.
 - **Errors** are RFC 9457 problem details (`application/problem+json`) with a stable `code`:
   `unauthorized`, `invalid_request` (400), `not_found`, `reference_taken` (409),
-  `invalid_expectation` (422, e.g. an amount with more decimals than the asset has), `internal`. A
+  `invalid_expectation` (422, e.g. an amount with more decimals than the asset has),
+  `invalid_resolution` (422), `resolution_refused` (409, the rules refuse it), `internal`. A
   query parameter or body field the API does not know is a 400, not silently ignored. A 500 says
   nothing about the server's insides.
 

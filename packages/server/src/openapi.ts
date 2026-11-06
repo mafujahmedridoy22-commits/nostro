@@ -3,7 +3,7 @@
  * server validates requests with. Served at `GET /v1/openapi.json`.
  */
 import { readFileSync } from 'node:fs'
-import { components, expectationBody, query, ref } from './schemas.js'
+import { components, expectationBody, query, ref, resolveBody } from './schemas.js'
 
 /** This package's version, which is the API's. */
 const VERSION = (JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as { version: string }).version
@@ -118,6 +118,23 @@ export function buildOpenApi() {
           summary: 'Exceptions, in the order they were opened',
           parameters: parameters(query.exceptions),
           responses: { '200': ok('ExceptionPage'), ...errors },
+        },
+      },
+      '/v1/exceptions/{id}/resolve': {
+        post: {
+          operationId: 'resolveException',
+          summary: 'Decide an exception: apply its movement to invoices, ignore it, or close the exception',
+          description:
+            'In one transaction with its journal adjustment. Whatever an application leaves over stays open, under an exception for exactly that amount.',
+          parameters: [idParam('exception')],
+          requestBody: { required: true, content: { 'application/json': { schema: resolveBody } } },
+          responses: {
+            '200': ok('Resolution'),
+            '404': problem('No such exception in this tenant (`not_found`).'),
+            '409': problem('The rules refuse it: a lookalike asset, too much, a movement already decided (`resolution_refused`).'),
+            '422': problem('It cannot be carried out as asked: an unknown reference, or more decimals than the asset has (`invalid_resolution`).'),
+            ...errors,
+          },
         },
       },
       '/v1/events': {
