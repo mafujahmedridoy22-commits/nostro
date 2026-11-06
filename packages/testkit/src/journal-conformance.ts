@@ -244,19 +244,32 @@ export function describeJournalConformance(name: string, makeStore: () => Store 
 
     it('lets only one of two concurrent posters append to a movement', async () => {
       const m = await movement()
-      // Both posters read before their transactions start, as two workers
-      // would: each believes posting 1 is free. The store must let one win.
-      const poster = async () => {
-        const existing = await store.listJournalEntries({ tenantId: T, movementId: m.id })
-        return store.transaction(async (tx) => {
+      // Both read before either starts, as two workers can: each believes
+      // posting 1 is free. Reading first is what makes this deterministic;
+      // left to chance, a slow reader sees the other's entry and is refused by
+      // the check below instead. The store must let exactly one win.
+      const [one, two] = await Promise.all([
+        store.listJournalEntries({ tenantId: T, movementId: m.id }),
+        store.listJournalEntries({ tenantId: T, movementId: m.id }),
+      ])
+      const poster = (seen: readonly unknown[]) =>
+        store.transaction(async (tx) => {
           await new Promise((r) => setTimeout(r, 20))
-          return tx.postJournalEntry(entry(m, { postingNo: existing.length + 1 }))
+          return tx.postJournalEntry(entry(m, { postingNo: seen.length + 1 }))
         })
-      }
-      const results = await Promise.allSettled([poster(), poster()])
+      const results = await Promise.allSettled([poster(one), poster(two)])
       expect(results.filter((r) => r.status === 'fulfilled')).toHaveLength(1)
       const rejected = results.find((r) => r.status === 'rejected') as PromiseRejectedResult
       expect(rejected.reason).toMatchObject(constraint('journal_posting_conflict'))
+      expect(await store.listJournalEntries({ tenantId: T, movementId: m.id })).toHaveLength(1)
+    })
+
+    it('refuses to post the same cash twice, even with the right posting number', async () => {
+      const m = await movement()
+      await store.transaction((tx) => tx.postJournalEntry(entry(m, { postingNo: 1 })))
+      await expect(store.transaction((tx) => tx.postJournalEntry(entry(m, { postingNo: 2 })))).rejects.toMatchObject(
+        constraint('journal_cash_mismatch'),
+      )
       expect(await store.listJournalEntries({ tenantId: T, movementId: m.id })).toHaveLength(1)
     })
   })
