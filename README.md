@@ -5,7 +5,7 @@
 
 **Payment reconciliation and ledger-to-accounting infrastructure for Stellar.**
 
-> **Status: `0.1.0`, early, and not yet on npm.** Implemented and tested: the `Money`/`Asset`
+> **Status: `0.1.0`, early: the API may change before 1.0.** Implemented and tested: the `Money`/`Asset`
 > core, the record model (movements, expectations, allocations, exceptions), the transactional
 > `Store` contract with in-memory, SQLite (`@nostro-labs/store-sqlite`) and PostgreSQL
 > (`@nostro-labs/store-postgres`) stores that pass one shared conformance suite, and Horizon ingestion
@@ -13,8 +13,13 @@
 > double-entry journal posted as movements are decided, with CSV export, `doctor()`, which checks
 > all three invariants, a `nostro` command line over all of it (`@nostro-labs/cli`), and an HTTP API with
 > signed webhooks (`@nostro-labs/server`, `nostro serve`), with an OpenAPI document and a container image.
-> Nothing is on npm yet — see [Roadmap](#roadmap). Nothing here is production-ready yet, and this
-> README marks what exists versus what doesn't.
+> Nothing here is production-ready yet, and this README marks what exists versus what doesn't. See
+> [Roadmap](#roadmap).
+
+```sh
+npm install @nostro-labs/nostro      # the library
+npm install -g @nostro-labs/cli      # the `nostro` command
+```
 
 ## The problem
 
@@ -133,8 +138,7 @@ Each command exits non-zero when it fails or finds a problem, so it can run from
 `migrate` changes the schema; every other command refuses a database that is not exactly at the
 version it expects. On testnet, `nostro doctor --attest` matched three accounts with 3, 9,427
 and 53,740 movements to the stroop in every asset. All the commands and options are in
-[packages/cli](./packages/cli/README.md). It is not on npm yet: from a checkout, `pnpm build`, then
-run `node packages/cli/dist/bin.js`.
+[packages/cli](./packages/cli/README.md).
 
 ## As a service (works today)
 
@@ -182,7 +186,7 @@ PostgreSQL checks it again itself at COMMIT, and `doctor()` re-checks what is st
 
 | Version | Scope | State |
 |---|---|---|
-| 0.1 | Horizon ingestion, matching (muxed/memo/amount), exceptions, double-entry journal + CSV, invariants, CLI, server | in progress |
+| 0.1 | Horizon ingestion, matching (muxed/memo/amount), exceptions, double-entry journal + CSV, invariants, CLI, server | released |
 | 0.2 | Chart of accounts, accounting periods, QuickBooks / Xero / Beancount export | planned |
 | 0.3 | Stellar RPC source for SEP-41 contract tokens, archive fallback, contract-address watching | planned |
 | 0.4 | Exceptions UI, match hints, OpenTelemetry, anchor (SEP-24/31) awareness | planned |
