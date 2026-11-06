@@ -26,6 +26,7 @@ randomness, and every decision records its reasons as evidence.
 | `memo_id` | identifier | 0.95 | `MEMO_ID` equals the memo id asked for, or the expectation's muxed id | payer typo or a reused old invoice id |
 | `memo_text` | identifier | 0.85 | normalised text memo equals the normalised reference or requested memo | normalisation is deliberately loose |
 | `exact_amount` | amount | 0.60 unique / 0.20 shared | exactly the amount still owed, same asset, inside the window | any two invoices for the same amount |
+| `known_payer` | payer | 0.40 | the movement's counterparty is in the expectation's payers | a payer may owe something else, or share an account |
 
 **An amount alone never settles anything:** 0.60 is below the 0.70 threshold, so a unique-amount match
 without a memo becomes a suggestion in the exceptions queue. Lowering `threshold` changes that, and
@@ -101,7 +102,6 @@ These are known gaps, each planned as its own self-contained piece of work:
 - **Truncated text memos.** A reference longer than 28 bytes of UTF-8 is cut by the wallet; nostro does
   not yet detect truncation or prefix-match it.
 - **`MEMO_HASH` references**, for references too long for a text memo.
-- **Known-payer corroboration**, scoring a payment from an account registered as the payer.
 - **Amount fingerprints**, a unique sub-unit suffix per invoice for payers who cannot send memos.
 - **Claimable balances** as a two-step create-then-claim lifecycle.
 - **Several payments in one transaction** sharing a memo.
