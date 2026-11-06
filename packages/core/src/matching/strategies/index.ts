@@ -1,10 +1,11 @@
 import type { MatchStrategy } from '../types.js'
 import { exactAmountStrategy } from './exact-amount.js'
+import { knownPayerStrategy } from './known-payer.js'
 import { memoIdStrategy } from './memo-id.js'
 import { memoTextStrategy } from './memo-text.js'
 import { muxedIdStrategy } from './muxed-id.js'
 
-export { exactAmountStrategy, memoIdStrategy, memoTextStrategy, muxedIdStrategy }
+export { exactAmountStrategy, knownPayerStrategy, memoIdStrategy, memoTextStrategy, muxedIdStrategy }
 
 /**
  * The default strategies, strongest first. The ordering and scores are
@@ -16,4 +17,5 @@ export const DEFAULT_STRATEGIES: readonly MatchStrategy[] = [
   memoIdStrategy,
   memoTextStrategy,
   exactAmountStrategy,
+  knownPayerStrategy,
 ]
