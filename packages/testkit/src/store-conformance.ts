@@ -660,6 +660,29 @@ export function describeStoreConformance(name: string, makeStore: () => Store | 
       })
     })
 
+    it.each([
+      ['a NUL', 'a\0b'],
+      ['a lone surrogate', 'a\ud800b'],
+    ])('refuses %s in any text it stores, whatever the database could hold', async (_, nul) => {
+      const e = await expect10()
+      const m = await record()
+      const refused = (fn: (tx: StoreTx) => Promise<unknown>) => expect(store.transaction(fn)).rejects.toBeInstanceOf(ValidationError)
+      const base = { tenantId: T, reference: 'R', account: ACCOUNT, amount: usdc('1') }
+      await refused((tx) => tx.insertExpectation({ ...base, reference: nul }))
+      await refused((tx) => tx.insertExpectation({ ...base, metadata: { note: nul } }))
+      await refused((tx) => tx.insertExpectation({ ...base, metadata: { [nul]: 'x' } }))
+      await refused((tx) => tx.cancelExpectation(T, e.id, nul))
+      await refused((tx) => tx.setDisposition(T, m.id, 'ignored', nul))
+      await refused((tx) => tx.openException({ tenantId: T, code: 'MEMO_MISSING', movementId: m.id, detail: nul }))
+      await refused((tx) => tx.setCursor(CURSOR, nul))
+      const x = await store.transaction((tx) => tx.openException({ tenantId: T, code: 'MEMO_MISSING', movementId: m.id, detail: 'x' }))
+      await refused((tx) => tx.resolveException(T, x.id, { status: 'resolved', note: nul }))
+
+      // A memo is a fact from the chain, and is kept exactly: NUL included.
+      const kept = await record({ memo: { type: 'text', value: 'a\0b' } })
+      expect((await store.getMovement(T, kept.id))!.memo).toEqual({ type: 'text', value: 'a\0b' })
+    })
+
     it('validates write arguments that are not records', async () => {
       const e = await expect10()
       const m = await record()

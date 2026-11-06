@@ -21,7 +21,7 @@ import type {
   NewMovement,
   Side,
 } from '../model/index.js'
-import { ValidationError, signedAmount } from '../model/index.js'
+import { ValidationError, assertStorableText, signedAmount } from '../model/index.js'
 import { Money, isSameCodeDifferentIssuer } from '../money/index.js'
 import type { Resolution } from './store.js'
 import { ConstraintError } from './store.js'
@@ -147,6 +147,7 @@ export function checkDisposition(
       return
     case 'ignored':
       if (reason === undefined || reason.trim() === '') refuse('a reason is required')
+      assertStorableText('reason', reason!)
       return
     default:
       throw new ValidationError('disposition', `unknown disposition ${JSON.stringify(disposition)}`)
@@ -158,6 +159,7 @@ export function checkCancel(expectation: Expectation, reason: string): void {
   if (typeof reason !== 'string' || reason.trim() === '') {
     throw new ValidationError('reason', 'must be a non-empty string')
   }
+  assertStorableText('reason', reason)
   if (expectation.status === 'cancelled') {
     throw new ConstraintError('expectation_not_open', `expectation ${expectation.id} is already cancelled`)
   }
@@ -177,6 +179,7 @@ export function checkResolution(exception: ExceptionRecord, resolution: Resoluti
   if (typeof resolution.note !== 'string' || resolution.note.trim() === '') {
     throw new ValidationError('note', 'must be a non-empty string')
   }
+  assertStorableText('note', resolution.note)
   if (exception.status !== 'open') {
     throw new ConstraintError('exception_not_open', `exception ${exception.id} is already ${exception.status}`)
   }
@@ -187,6 +190,7 @@ export function checkCursorValue(value: string): void {
   if (typeof value !== 'string' || value === '') {
     throw new ValidationError('cursor', 'must be a non-empty string')
   }
+  assertStorableText('cursor', value)
 }
 
 /** Roles whose lines are the movement's own balance: a wallet's cash, or an issuer's issued supply. */

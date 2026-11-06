@@ -301,6 +301,20 @@ describe('errors', () => {
     expect(res.body).not.toContain('db.internal')
   })
 
+  it('refuses a NUL before it can reach the database, in a path or in a body', async () => {
+    const app = server(new MemoryStore())
+    for (const url of ['/v1/movements/a%00b', '/v1/expectations/%00']) {
+      const res = await app.inject({ url, headers: auth() })
+      expect(res.statusCode, url).toBe(400)
+      expect(res.json()).toMatchObject({ code: 'invalid_request' })
+    }
+    const post = (payload: object) => app.inject({ method: 'POST', url: '/v1/expectations', headers: auth(), payload })
+    const ok = { reference: 'R', account: A, amount: '1' }
+    expect((await post({ ...ok, reference: 'a\u0000b' })).json()).toMatchObject({ status: 422, code: 'invalid_expectation' })
+    expect((await post({ ...ok, metadata: { note: 'a\u0000b' } })).json()).toMatchObject({ status: 422, code: 'invalid_expectation' })
+    expect((await post({ ...ok, reference: 'a\ud800b' })).json()).toMatchObject({ status: 422, code: 'invalid_expectation' })
+  })
+
   it('answers a body that is not JSON with a problem', async () => {
     const res = await server(new MemoryStore()).inject({
       method: 'POST',

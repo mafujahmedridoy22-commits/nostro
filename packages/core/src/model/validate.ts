@@ -43,6 +43,18 @@ export function isAccountId(value: string): boolean {
   return ACCOUNT_RE.test(value)
 }
 
+/**
+ * PostgreSQL text cannot hold NUL, and a lone surrogate is not text at all: a
+ * SQL store would silently save something else. So no store accepts either: a
+ * value is valid in every store or in none, and bad input is refused here
+ * rather than surfacing as a database error. Memos are the exception: they are
+ * facts from the chain, and every store keeps them as bytes.
+ */
+export function assertStorableText(field: string, value: string): void {
+  if (value.includes('\0')) throw new ValidationError(field, 'must not contain a NUL character')
+  if (/\p{Cs}/u.test(value)) throw new ValidationError(field, 'must be well-formed Unicode')
+}
+
 function text(field: string, value: unknown, max = MAX_TEXT): void {
   if (typeof value !== 'string' || value.trim() === '') {
     throw new ValidationError(field, 'must be a non-empty string')
@@ -50,6 +62,7 @@ function text(field: string, value: unknown, max = MAX_TEXT): void {
   if (value.length > max) {
     throw new ValidationError(field, `must be at most ${max} characters`)
   }
+  assertStorableText(field, value)
 }
 
 function account(field: string, value: unknown): void {
@@ -150,6 +163,8 @@ export function assertValidNewExpectation(e: NewExpectation): void {
   if (e.metadata !== undefined) {
     for (const [k, v] of Object.entries(e.metadata)) {
       if (typeof v !== 'string') throw new ValidationError(`metadata.${k}`, 'must be a string')
+      assertStorableText('metadata', k)
+      assertStorableText(`metadata.${k}`, v)
     }
   }
 }

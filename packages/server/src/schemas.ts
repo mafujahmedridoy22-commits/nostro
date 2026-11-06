@@ -36,6 +36,13 @@ const listQuery = (properties: Record<string, unknown>) =>
 
 const statuses = EXPECTATION_STATUSES.join('|')
 
+/** Path parameters: an id with a NUL cannot name anything, and PostgreSQL would refuse to look. */
+export const idParams = {
+  type: 'object',
+  required: ['id'],
+  properties: { id: { type: 'string', minLength: 1, maxLength: 128, pattern: '^[^\\u0000]+$' } },
+} as const
+
 /** Querystring schemas, by route. */
 export const query = {
   movements: listQuery({

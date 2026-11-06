@@ -29,7 +29,7 @@ import {
 import type { Authenticate } from './auth.js'
 import { buildOpenApi } from './openapi.js'
 import { HttpProblem } from './problem.js'
-import { UINT64, expectationBody, query } from './schemas.js'
+import { UINT64, expectationBody, idParams, query } from './schemas.js'
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -199,7 +199,7 @@ export function createServer(options: ServerOptions): FastifyInstance {
           ),
       )
 
-      v1.get<{ Params: { id: string } }>('/movements/:id', async ({ tenantId, params }) => {
+      v1.get<{ Params: { id: string } }>('/movements/:id', { schema: { params: idParams } }, async ({ tenantId, params }) => {
         const movement = await store.getMovement(tenantId, params.id)
         if (movement === null) throw new HttpProblem(404, 'not_found', `No movement ${params.id}.`)
         const movementId = movement.id
@@ -228,7 +228,7 @@ export function createServer(options: ServerOptions): FastifyInstance {
           ),
       )
 
-      v1.get<{ Params: { id: string } }>('/expectations/:id', async ({ tenantId, params }) => {
+      v1.get<{ Params: { id: string } }>('/expectations/:id', { schema: { params: idParams } }, async ({ tenantId, params }) => {
         const expectation = await store.getExpectation(tenantId, params.id)
         if (expectation === null) throw new HttpProblem(404, 'not_found', `No expectation ${params.id}.`)
         const allocations = await store.listAllocations({ tenantId, expectationId: expectation.id })
