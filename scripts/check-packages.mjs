@@ -9,10 +9,11 @@
  * code, README, LICENSE; no sources or tests; no workspace: ranges left),
  * installs the tarballs with npm into an empty directory, and uses them
  * there: the library, the SQLite store's native module, the server, the
- * `nostro` binary, and the TypeScript types. Exits non-zero on any failure.
+ * `nostro` binary, the before-and-after example, and the TypeScript types.
+ * Exits non-zero on any failure.
  */
 import { execFileSync } from 'node:child_process'
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { copyFileSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -107,6 +108,12 @@ console.log('used')
   check(run(nostro, ['--version'], app).trim() === version, `the nostro binary runs, and says ${version}`)
   check(run(nostro, ['migrate', '--db', 'cli.db'], app).includes('from schema version 0 to'), 'nostro migrate creates a database')
   check(run(nostro, ['doctor', '--db', 'cli.db'], app).includes('OK: I1 and I3 hold'), 'nostro doctor passes on it')
+
+  // The before-and-after example, against the installed packages rather than the workspace.
+  for (const file of ['before.mjs', 'after.mjs', 'horizon.mjs', 'compare.mjs']) {
+    copyFileSync(join(root, 'examples', 'before-after', file), join(app, file))
+  }
+  check(run('node', ['compare.mjs'], app).includes(`nostro: 10 of 10.`), 'the before-and-after example runs, and nostro gets all ten right')
 
   writeFileSync(
     join(app, 'types.ts'),

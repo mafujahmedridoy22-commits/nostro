@@ -1,0 +1,11 @@
+{
+  "name": "nostro-example-before-after",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node compare.mjs"
+  },
+  "dependencies": {
+    "nostro": "^0.1.0"
+  }
+}
