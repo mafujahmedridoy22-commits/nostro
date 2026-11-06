@@ -85,6 +85,10 @@ describe('normalizeReference', () => {
     ['inv00123', '00123'],
     ['  ORDER-77 ', 'ORDER77'],
     ['#', ''],
+    // A prefix after a stray separator, as wallets and people produce.
+    ['- INV 123', '123'],
+    [': #INV-00123', '00123'],
+    ['I-NV 5', '5'],
   ])('normalises %j to %j', (input, want) => {
     expect(normalizeReference(input)).toBe(want)
   })
