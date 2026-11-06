@@ -1,0 +1,82 @@
+{
+  "scenario": "create-account-funded",
+  "network": "public",
+  "horizon": "https://horizon.stellar.org",
+  "capturedAt": "2026-11-06T15:09:14+00:00",
+  "sources": [
+    "https://horizon.stellar.org/operations/280626020590235653?join=transactions",
+    "https://horizon.stellar.org/operations/280626020590235653/effects"
+  ],
+  "operation": {
+    "account": "GAGCTBXFFAQYEY3NZYKXT2RUFMDOEEXGUMGZUWCBIXWCHCF4BBR6NCDA",
+    "created_at": "2026-11-06T15:08:47Z",
+    "funder": "GCWB3T4MQEGXN6SYLRS35IRQSBA7P5GKYVGXNAJQXM6WIRVIIY6SXDJL",
+    "id": "280626020590235653",
+    "paging_token": "280626020590235653",
+    "source_account": "GCWB3T4MQEGXN6SYLRS35IRQSBA7P5GKYVGXNAJQXM6WIRVIIY6SXDJL",
+    "starting_balance": "1.5000000",
+    "transaction": {
+      "created_at": "2026-11-06T15:08:47Z",
+      "envelope_xdr": "AAAAAgAAAACsHc+MgQ12+lhcZb6iMJBB9/TKxU12gTC7PWRGqEY9KwAABLADwLCUAAa1ZgAAAAEAAAAAAAAAAAAAAABq7e2YAAAAAAAAAAYAAAAAAAAAAAAAAABdYxWY360xGF0cuo0webtoviEAAmDql5UBxLoLmL1rAwAAAAAA5OHAAAAAAAAAAAAAAAAAaIAOn6sE8K+RTOKK0tsLIx2FOvKht6QJTZQu+lXYzJ4AAAAAAOThwAAAAAAAAAAAAAAAAPrT7HtFijmBXDXHzl8Wa8RVUvxsnc1CDZJXY64dhXsoAAAAAADk4cAAAAAAAAAAAAAAAABhiaIdX5VZ/xcQcxs6iAQMJ868wLZwB8sWfCWUxGSJlwAAAAAA5OHAAAAAAAAAAAAAAAAADCmG5SghgmNtzhV56jQrBuIS5qMNmlhBRewjiLwIY+YAAAAAAOThwAAAAAAAAAAAAAAAABFHv4enUFoEnjOPc4tei8SavVTYvmaKGvDUSKG2DWlpAAAAAADk4cAAAAAAAAAAAahGPSsAAABA5+skQfmbVrsUJmX88Uxzcck9i3g2WL1ToAtMCf898y2WjVuDDzUwyaKwQVGPkDfWS18toEvT8yvReKVs5BfVDQ==",
+      "fee_account": "GCWB3T4MQEGXN6SYLRS35IRQSBA7P5GKYVGXNAJQXM6WIRVIIY6SXDJL",
+      "fee_charged": "600",
+      "fee_meta_xdr": "AAAAAgAAAAMD5PvfAAAAAAAAAACsHc+MgQ12+lhcZb6iMJBB9/TKxU12gTC7PWRGqEY9KwAAABBlxE5DA8CwlAAGtWUAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAIAAAAAAAAAAAAAAAAAAAADAAAAAAPk+90AAAAAau3tawAAAAAAAAABA+T74QAAAAAAAAAArB3PjIENdvpYXGW+ojCQQff0ysVNdoEwuz1kRqhGPSsAAAAQZcRL6wPAsJQABrVlAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAAwAAAAAD5PvdAAAAAGrt7WsAAAAA",
+      "hash": "a28501d9394a8267ca9fab7f5b3ee52bd8d038704ad0c10cf3420ff81ac3384a",
+      "id": "a28501d9394a8267ca9fab7f5b3ee52bd8d038704ad0c10cf3420ff81ac3384a",
+      "ledger": 65338337,
+      "max_fee": "1200",
+      "memo_type": "none",
+      "operation_count": 6,
+      "paging_token": "280626020590235648",
+      "preconditions": {
+        "timebounds": {
+          "max_time": "1793977752",
+          "min_time": "0"
+        }
+      },
+      "result_xdr": "AAAAAAAAAlgAAAAAAAAABgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+      "signatures": [
+        "5+skQfmbVrsUJmX88Uxzcck9i3g2WL1ToAtMCf898y2WjVuDDzUwyaKwQVGPkDfWS18toEvT8yvReKVs5BfVDQ=="
+      ],
+      "source_account": "GCWB3T4MQEGXN6SYLRS35IRQSBA7P5GKYVGXNAJQXM6WIRVIIY6SXDJL",
+      "source_account_sequence": "270410127344317798",
+      "successful": true
+    },
+    "transaction_hash": "a28501d9394a8267ca9fab7f5b3ee52bd8d038704ad0c10cf3420ff81ac3384a",
+    "transaction_successful": true,
+    "type": "create_account",
+    "type_i": 0
+  },
+  "effects": [
+    {
+      "account": "GAGCTBXFFAQYEY3NZYKXT2RUFMDOEEXGUMGZUWCBIXWCHCF4BBR6NCDA",
+      "created_at": "2026-11-06T15:08:47Z",
+      "id": "0280626020590235653-0000000001",
+      "paging_token": "280626020590235653-1",
+      "starting_balance": "1.5000000",
+      "type": "account_created",
+      "type_i": 0
+    },
+    {
+      "account": "GCWB3T4MQEGXN6SYLRS35IRQSBA7P5GKYVGXNAJQXM6WIRVIIY6SXDJL",
+      "amount": "1.5000000",
+      "asset_type": "native",
+      "created_at": "2026-11-06T15:08:47Z",
+      "id": "0280626020590235653-0000000002",
+      "paging_token": "280626020590235653-2",
+      "type": "account_debited",
+      "type_i": 3
+    },
+    {
+      "account": "GAGCTBXFFAQYEY3NZYKXT2RUFMDOEEXGUMGZUWCBIXWCHCF4BBR6NCDA",
+      "created_at": "2026-11-06T15:08:47Z",
+      "id": "0280626020590235653-0000000003",
+      "key": "",
+      "paging_token": "280626020590235653-3",
+      "public_key": "GAGCTBXFFAQYEY3NZYKXT2RUFMDOEEXGUMGZUWCBIXWCHCF4BBR6NCDA",
+      "type": "signer_created",
+      "type_i": 10,
+      "weight": 1
+    }
+  ]
+}

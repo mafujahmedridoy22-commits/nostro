@@ -166,16 +166,15 @@ describe('normalizeEffects: accounts, balances and contracts', () => {
     expect(forAccount(f, f.operation.funder!)).toEqual([])
   })
 
-  it('credits a starting balance from account_created (constructed: nonzero balance)', () => {
-    const f = load('create-account')
-    const effects = f.effects.map((e) =>
-      e.type === 'account_created' ? { ...e, starting_balance: '5.0000000' } : e,
-    )
-    const [credit] = normalizeEffects(effects, ops(f), ctx(f.operation.account!))
+  it('credits a starting balance from account_created', () => {
+    const f = load('create-account-funded')
+    const created = f.effects.find((e) => e.type === 'account_created')!
+    expect(created.starting_balance).not.toBe('0.0000000')
+    const [credit] = forAccount(f, f.operation.account!)
     expect(summary(credit!)).toEqual({
       direction: 'credit',
       kind: 'transfer',
-      amount: '5.0000000',
+      amount: created.starting_balance,
       asset: NATIVE,
       counterparty: f.operation.funder,
     })
