@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import { MemoryStore, Money, NATIVE } from '../src/index.js'
-import { describeStoreConformance } from 'nostro-testkit'
+import { describeStoreConformance, describeStoreProperties } from 'nostro-testkit'
 
 describeStoreConformance('MemoryStore', () => new MemoryStore())
+describeStoreProperties('MemoryStore', (now) => new MemoryStore({ now }), { runs: 200 })
 
 describe('MemoryStore', () => {
   it('uses injected ids and clock so fixture runs are deterministic', async () => {

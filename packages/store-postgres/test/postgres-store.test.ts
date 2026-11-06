@@ -10,7 +10,7 @@ import pg from 'pg'
 import { afterAll, describe, expect, it } from 'vitest'
 import type { StoreTx } from 'nostro'
 import { Money, NATIVE } from 'nostro'
-import { describeStoreConformance } from 'nostro-testkit'
+import { describeStoreConformance, describeStoreProperties } from 'nostro-testkit'
 import { PostgresStore } from '../src/index.js'
 
 const url = process.env.NOSTRO_TEST_DATABASE_URL
@@ -21,10 +21,10 @@ if (url === undefined && process.env.CI !== undefined) {
 const pool = url === undefined ? undefined : new pg.Pool({ connectionString: url, max: 20 })
 const schemas: string[] = []
 
-async function freshStore(options: { schema?: string } = {}): Promise<PostgresStore> {
+async function freshStore(options: { schema?: string; now?: () => Date } = {}): Promise<PostgresStore> {
   const schema = options.schema ?? `nostro_test_${randomUUID().replaceAll('-', '').slice(0, 16)}`
   schemas.push(schema)
-  const store = new PostgresStore({ pool: pool!, schema })
+  const store = new PostgresStore({ pool: pool!, schema, ...(options.now === undefined ? {} : { now: options.now }) })
   await store.migrate()
   return store
 }
@@ -33,7 +33,7 @@ afterAll(async () => {
   if (pool === undefined) return
   for (const schema of new Set(schemas)) await pool.query(`DROP SCHEMA IF EXISTS "${schema}" CASCADE`)
   await pool.end()
-})
+}, 300_000) // the property tests make a schema per history
 
 if (pool === undefined) {
   describe.skip('PostgresStore (set NOSTRO_TEST_DATABASE_URL to run)', () => {
@@ -41,6 +41,7 @@ if (pool === undefined) {
   })
 } else {
   describeStoreConformance('PostgresStore', () => freshStore())
+  describeStoreProperties('PostgresStore', (now) => freshStore({ now }), { runs: 15, differential: true })
 
   describe('PostgresStore', () => {
     it('migrates idempotently, even when several processes migrate at once', async () => {

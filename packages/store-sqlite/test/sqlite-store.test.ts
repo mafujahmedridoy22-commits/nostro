@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import Database from 'better-sqlite3'
 import { afterAll, describe, expect, it } from 'vitest'
 import { Money, NATIVE, doctor } from 'nostro'
-import { describeStoreConformance } from 'nostro-testkit'
+import { describeStoreConformance, describeStoreProperties } from 'nostro-testkit'
 import { SqliteStore } from '../src/index.js'
 
 const dir = mkdtempSync(join(tmpdir(), 'nostro-sqlite-'))
@@ -20,6 +20,15 @@ async function freshStore(filename = freshFile()): Promise<SqliteStore> {
 afterAll(() => rmSync(dir, { recursive: true, force: true }))
 
 describeStoreConformance('SqliteStore', () => freshStore())
+describeStoreProperties(
+  'SqliteStore',
+  async (now) => {
+    const store = new SqliteStore({ filename: freshFile(), now })
+    await store.migrate()
+    return store
+  },
+  { runs: 25, differential: true },
+)
 
 /** A store file holding one movement and its initial journal entry. */
 async function journaled(): Promise<string> {
