@@ -57,6 +57,43 @@ To add a strategy, see [CONTRIBUTING](../CONTRIBUTING.md#adding-a-matching-strat
 
 Every case above has a test in `packages/core/test/matching.test.ts` or `reconcile.test.ts`.
 
+## When a person decides
+
+An exception is a question for a person. These answer it, each in one transaction with the journal
+adjustment it causes, and every event it means:
+
+```ts
+import { applyMovement, closeException, ignoreMovement } from 'nostro'
+
+// "That payment was for INV-1042." Applied by hand, it takes what is left of the movement and still
+// owing, unless you give an amount; several expectations split it.
+await applyMovement({ store, tenantId, movementId, allocations: [{ expectationId }], note: 'customer called' })
+
+// "That is not something to reconcile." Whatever was already allocated stays allocated.
+await ignoreMovement({ store, tenantId, movementId, reason: 'our own top-up' })
+
+// For an exception no movement depends on.
+await closeException({ store, tenantId, exceptionId, status: 'dismissed', note: 'checked' })
+```
+
+| What the person decides | Disposition after | Journal adjustment (reclass, cash untouched) |
+|---|---|---|
+| A payment with no match was for an invoice | `allocated` | Dr unapplied · Cr receivable |
+| It was only partly for one | `partial`, with `PARTIAL_UNRESOLVED` for exactly what is left | Dr unapplied · Cr receivable, for the part applied |
+| An overpayment's residual goes to another invoice | `allocated`, or `partial` with `OVERPAYMENT` for what is left | Dr customer credit · Cr receivable |
+| Money in that is not to be reconciled | `ignored`, with the reason | Dr unapplied · Cr uncategorized income |
+| Money out that is not to be reconciled | `ignored`, with the reason | Dr uncategorized expense · Cr suspense |
+| An overpayment is kept | `ignored`; the invoice stays settled | Dr customer credit · Cr uncategorized income |
+
+The rules hold for a person too: a lookalike asset cannot settle an invoice, money on one account
+cannot settle an invoice on another, nothing can be over-allocated, and a cancelled invoice cannot be
+paid. An invoice past its expiry can, because deciding that is what the person is there for. A
+movement with nothing left to decide is refused with `movement_not_open`, which is also what the
+second of two people deciding at once receives.
+
+Closing the last open exception of an undecided movement is refused, because it would leave the
+movement's disposition with nothing to support it (I1). Apply or ignore the movement instead.
+
 ## Not handled yet
 
 These are known gaps, each planned as its own self-contained piece of work:

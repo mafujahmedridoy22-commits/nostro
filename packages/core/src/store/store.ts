@@ -242,6 +242,7 @@ export type ConstraintName =
   | 'expectation_has_allocations'
   | 'expectation_not_open'
   | 'disposition_unsupported'
+  | 'movement_not_open'
   | 'exception_not_open'
   | 'journal_unbalanced'
   | 'journal_posting_conflict'

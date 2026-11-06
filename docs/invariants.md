@@ -47,7 +47,7 @@ its lock before it is reported.
 
 | Code | Invariant | Severity | Means | What to do |
 |---|---|---|---|---|
-| `disposition_unsupported` | I1 | error | The disposition no longer matches the movement's allocations and exceptions. Typically a `partial` movement whose only exception was resolved. | Allocate the rest, or set the disposition to `exception` or `ignored`. |
+| `disposition_unsupported` | I1 | error | The disposition no longer matches the movement's allocations and exceptions. Typically a `partial` movement whose only exception was resolved. | Use `applyMovement()` for the rest, or `ignoreMovement()` ([docs/matching.md](./matching.md)). Those never leave a movement in this state; closing the exception directly can. |
 | `allocation_asset` | I1 | error | An allocation is in a different asset from its movement. | Only possible by editing the database directly; investigate. |
 | `allocation_over_movement` | I1 | error | Allocations add up to more than the movement. | As above. |
 | `balance_mismatch` | I2 | error | The chain balance and the recorded movements disagree at the ledger the balance last changed in, after retries. | A source has missed something. Check that both the effects and fees sources run for the account, and that its history is within Horizon's retention. |
